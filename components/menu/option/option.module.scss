@@ -1,0 +1,21 @@
+.option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.25rem;
+    width: calc(100% - .5rem);
+    min-height: 1.25rem;
+    padding: .25rem;
+    margin: .125rem 0;
+    border-radius: .25rem;
+}
+.option:hover{
+    background-color: var(--hover-color);
+}
+.option.disabled{
+    color: var(--disabled-text-color);
+
+    *{
+        color: var(--disabled-text-color);
+    }
+}
