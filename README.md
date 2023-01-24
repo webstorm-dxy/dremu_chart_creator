@@ -16,7 +16,7 @@ yarn
     ```typescript
     /*-*/ type IContainer = Container<PIXI.DisplayObject>;
     /*+*/ type IContainer = Container<PIXI.DisplayObject> & {children?: Container};
-    ``` 
+    ```
 ---
 
 3. 开发server:
@@ -26,3 +26,23 @@ yarn run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+
+---
+
+
+
+## 相关文档：
+
+pixi.js: <https://pixijs.download/release/docs/index.html>
+
+@inlet/react-pixi: <https://reactpixi.org/> 
+
+crypto.js: <https://cryptojs.gitbook.io/docs/>
+
+next.js: <https://www.nextjs.cn/docs/getting-started>
+
+react: <https://react.docschina.org/docs/hello-world.html>
+
+node:  <https://nodejs.org/en/docs/>
