@@ -3,6 +3,9 @@ import type { ChartDataArgs, Data, Meta } from "@interfaces/chart-data/chart-dat
 
 
 export default class ChartData{
+    /**
+     * @description 谱面数据的类
+     */
     private meta: Meta;
     data: Readonly<Data>;
 
@@ -10,11 +13,11 @@ export default class ChartData{
         this.meta = meta;
         this.data = data;
     }
-    setMeta<K extends keyof ChartData['meta']>(key: K, value: ChartData['meta'][K]): ChartData['meta'][K] {
+    setMeta<K extends keyof Meta>(key: K, value: Meta[K]): Meta[K] {
         this.meta[key] = value;
         return this.meta[key];
     }
-    getMeta<K extends keyof ChartData['meta']>(key: K): ChartData['meta'][K] {
+    getMeta<K extends keyof Meta>(key: K): Meta[K] {
         return this.meta[key];
     }
 }

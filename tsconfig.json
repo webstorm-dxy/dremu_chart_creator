@@ -17,6 +17,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "sourceMap": true,
     "incremental": true,
     "baseUrl": "./",
     "paths": {
@@ -26,7 +27,8 @@
       "@scripts/*": [ "./scripts/*" ],
       "@interfaces/*": [ "./interfaces/*" ],
       "@json/*": [ "./json/*" ],
-      "@pixi": ["./scripts/utils/pixi/pixi-version.ts"]
+      // "@pixi": ["./scripts/utils/pixi/pixi-version.ts"],
+      "@images/*": [ "./images/*" ],
     },
     "strict": false
   },

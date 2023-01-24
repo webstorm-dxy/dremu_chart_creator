@@ -2,12 +2,15 @@ import styles from '@styles/Preview.module.scss';
 
 import Head from "next/head";
 // import PIXI from '@pixi';
-import { Stage } from '@inlet/react-pixi';
+import { Stage} from '@inlet/react-pixi';
+import PreviewScene from '@components/pixi/scenes/preview/preview';
+import ChartData from '@scripts/chart-data/chart-data';
+import ChartLine from '@scripts/chart-data/line';
 // import Scene from '@components/pixi/scene/scene';
 // import Header from '@components/pages/preview/header/header';
 // import Main from '@components/pages/preview/main/main';
 
-
+const tempChartData = new ChartData({meta: {name: 'test'}, data: {lines: [new ChartLine({id: 0, speed: 0, start: [0, 0]})]}});
 
 export default function Preview() {
 
@@ -27,6 +30,7 @@ export default function Preview() {
                     width={960} 
                     height={540} 
                     options={{ backgroundColor: 0x000000, autoStart: false, antialias: true }}>
+                        <PreviewScene chart={tempChartData} viewWidth={960} viewHeight={540}></PreviewScene>
                 </Stage>
             </div>
         </>
