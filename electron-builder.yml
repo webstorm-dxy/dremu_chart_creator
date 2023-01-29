@@ -1,0 +1,12 @@
+appId: games.vestar.astraeus.editor.re
+productName: Re - AstEdit
+copyright: Copyright © 2020 Vestar team
+directories:
+  output: build
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null # see https://www.electron.build/configuration/publish

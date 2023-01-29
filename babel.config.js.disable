@@ -1,3 +1,5 @@
-// module.exports = () => {
-//     return {plugins: ['macros']};
-// };
+module.exports = {
+  "presets": [
+    "nextron/babel"
+  ]
+};

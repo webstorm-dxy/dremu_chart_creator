@@ -38,7 +38,7 @@ module.exports = {
     '@typescript-eslint/no-array-constructor': 0,
     '@typescript-eslint/no-this-alias': 0,
     'indent': [0, 4],
-    'linebreak-style': ['error', 'windows'],
+    'linebreak-style': [0],
     'semi': ['error', 'always'],
     'for-direction': 2,
     'no-cond-assign': 2,

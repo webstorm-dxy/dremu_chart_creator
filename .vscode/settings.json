@@ -1,0 +1,7 @@
+{
+    "editor.fontFamily": "'consolas', 'Droid Sans Mono', 'monospace', monospace",
+    "files.exclude": {
+        "**/*.js.map": true,
+        "app/**/*.js": true
+    }
+}
