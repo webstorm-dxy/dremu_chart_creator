@@ -5,13 +5,18 @@
 /.pnp
 .pnp.js
 /node_modules/*
+/.next
 
 # testing
 /coverage
 
 # next.js
-/.next/
-/out/
+/renderer/.next/
+/renderer/.next/*
+/renderer/out/
+
+*/*.js
+*/**/*.js
 
 # production
 /build
@@ -25,6 +30,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+/.next.err
 
 # local env files
 .env*.local
