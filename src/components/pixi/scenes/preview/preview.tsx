@@ -33,7 +33,7 @@ export default function PreviewScene(props: PreviewSceneProps) {
 
     const {viewWidth, viewHeight} = props;
 
-    return <Scene name="preview" {...props}>
+    return <Scene name="preview" viewWidth={viewWidth} viewHeight={viewHeight}>
         {isLoading && <Text text="Loading" position={[viewWidth / 2, viewHeight / 2]} style={new TextStyle({ align: "center", fontSize: 72, fill: 0xffffff })} anchor={0.5}></Text>}
         {!isLoading && // 背景
             <Background texture={loader.resources['bg'].texture} viewWidth={viewWidth} viewHeight={viewHeight} mask={true} zIndex={-99}></Background>

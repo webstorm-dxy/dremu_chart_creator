@@ -33,7 +33,7 @@ export default class Button extends React.Component {
         const {noShadow, cls} = this.props;
         const { showMenu, menu } = this.state;
 
-        return (<span {...this.props} className={useClassName(styles.button, noShadow ? styles['no-shadow'] : '', cls)} onClick={this.onClickHandler}>
+        return (<span className={useClassName(styles.button, noShadow ? styles['no-shadow'] : '', cls)} onClick={this.onClickHandler}>
             <span className={styles.content}>{this.props.children}</span>
             {showMenu && menu}
         </span>);

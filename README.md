@@ -24,13 +24,13 @@ yarn
 > 整体应用
 
 ```bash
-yarn run start dev
+yarn run dev
 ```
 
 > 仅 next (前端)
 
 ```bash
-yarn run dev
+yarn run dev::next
 ```
 
 打开 [http://localhost:3000](http://localhost:3000) 可以看到结果
@@ -56,3 +56,9 @@ react: <https://react.docschina.org/docs/hello-world.html>
 node:  <https://nodejs.org/en/docs/>
 
 tauri: <https://tauri.app/zh-cn/v1/guides/>
+
+## 图标使用方法
+
+使用`Icon`组件，icon可以在 <https://fontawesome.com/search?o=r&m=free> 找.
+
+prop详见Icon组件注释。

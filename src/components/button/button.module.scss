@@ -11,7 +11,7 @@
     user-select: none;
     background-color: var(--background);
     border-radius: 0.25rem;
-    box-shadow: var(--shadow);
+    // border: solid 2px var(--dark-background);
     font-size: 1rem;
 
     >.content {
@@ -21,12 +21,12 @@
 }
 
 .button:hover {
-    background-color: var(--hover-color);
+    background-color: var(--hover-bg);
 }
 
 .button.active {
-    color: var(--theme-text-color-1);
-    box-shadow: 0 0 5px var(--theme-shadow-color);
+    color: var(--active-color);
+    background-color: var(--active-bg);
 }
 
 .button.disabled {

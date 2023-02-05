@@ -1,4 +1,5 @@
 import type { Configs, TempConfigs } from '../interfaces/config';
+import {BaseDirectory, writeTextFile, readTextFile} from '@tauri-apps/api/fs';
 
 
 // 配置的版本，用于排除或更新
@@ -38,35 +39,17 @@ export function setConfig<k extends keyof Configs>(name: k, value: Configs[k]) {
 
 
 async function getUserConfig() {
-    // 获取配置
-    const res = await fetch('/config/getUserConfig', {
-        method: 'GET',
-        mode: 'cors'
-    }).then(res => res.json());
-
-    // 尝试使用配置
-    return new Promise((resolve, reject) => {
-        if (res.code === 200 && res.msg === 'Success') {
-            const userConfig: Configs = res.data;
-            setConfigs(userConfig);
-            resolve(userConfig);
-            return;
-        }
-        reject();
-    });
+    const content = await readTextFile('config/userConfig.json', {dir: BaseDirectory.Resource}).then(content => JSON.parse(content));
+    console.log(content);
+    return content;
 }
 
 export async function saveConfigToUserConfig() {
     const configJson = JSON.stringify(config);
-    window.localStorage.userConfig = configJson;
+    // window.localStorage.userConfig = configJson;
 
     // 保存配置
-    const res = await fetch('/config/saveUserConfig', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'cors',
-        body: configJson
-    }).then(res => res.json()).catch(err => { console.error(err); return err; });
+    await writeTextFile('config/userConfig.json', configJson, {dir: BaseDirectory.Resource});
 }
 
 export function initConfig(): void {
@@ -74,7 +57,7 @@ export function initConfig(): void {
     saveConfigToUserConfig();
 }
 
-function setConfigs(userConfig: Configs) {
+export function setConfigs(userConfig: Configs) {
     if (userConfig) {
         try {
             config = {
@@ -95,11 +78,8 @@ function setConfigs(userConfig: Configs) {
     } else {
         initConfig();
     }
-    // config.devMode = true;
-    // if (config.devMode) {
-    // Config.setConfig('route', '/dist');
-    // }
 }
 
 getUserConfig()
     .then(() => setConfig('devMode', false));
+// setConfig('devMode', true);
