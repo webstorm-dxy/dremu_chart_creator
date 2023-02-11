@@ -4,11 +4,12 @@ import {Tools} from './tools.d';
 const tools: Tools = [
     {
         name: 'mouse',
-        // icon: "arrow-pointer",
+        icon: "arrow-pointer",
         onClick: () => {}
     },
     {
         name: 'edit',
+        icon: 'pen',
         onClick: () => {}
     }
 ];

@@ -3,8 +3,8 @@ import styles from '@styles/Editor.module.scss';
 
 // import {config} from '@fortawesome/fontawesome-svg-core';
 import Head from "next/head";
-import Header from '@components/pages/index/header/header';
-import Main from '@components/pages/index/main/main';
+import Header from '@components/pages/editor/header/header';
+import Main from '@components/pages/editor/main/main';
 
 
 // config.autoAddCss = false;

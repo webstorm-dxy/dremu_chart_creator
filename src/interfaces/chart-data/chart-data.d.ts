@@ -10,7 +10,7 @@ export interface Meta{
 }
 
 export interface Data{
-    lines: ChartLine[] & [ChartLine];
+    lines: ChartLine[] | [ChartLine];
 }
 
 export type Beat = Fraction;

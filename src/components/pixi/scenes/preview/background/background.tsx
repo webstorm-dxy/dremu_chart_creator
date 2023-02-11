@@ -8,16 +8,16 @@ import React from 'react';
 
 
 export default function Background(props: BackgroundProps) {
-    const {texture, viewWidth, viewHeight, mask, zIndex} = props;
+    const {texture, width, height, mask, zIndex} = props;
     
     const drawMask = useCallback((g: PGraphics) => {
         g.beginFill(0x000000, 0.6);
-        g.drawRect(0, 0, viewWidth, viewHeight);
+        g.drawRect(0, 0, width, height);
         g.endFill();
     }, []);
 
     return <Container zIndex={zIndex}>
-            <Sprite texture={texture} width={viewWidth} height={viewHeight}></Sprite>
+            <Sprite texture={texture} width={width} height={height}></Sprite>
             {mask && <Graphics draw={drawMask}></Graphics>}
         </Container>;
 }

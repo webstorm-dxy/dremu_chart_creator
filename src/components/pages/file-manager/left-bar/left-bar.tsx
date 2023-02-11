@@ -3,6 +3,7 @@ import Image from 'next/image';
 import styles from './left-bar.module.scss';
 import Plate from './plate/plate';
 import {LeftBarProps} from './left-bar.d';
+import Link from 'next/link';
 
 export default function LeftBar({plate, setPlate} : LeftBarProps) {
     
@@ -17,6 +18,8 @@ export default function LeftBar({plate, setPlate} : LeftBarProps) {
             <Plate name='recently' icon={<Icon icon='clock-rotate-left'></Icon>} activePlate={plate} setPlate={setPlate}>最近</Plate>
             <Plate name='editor' icon={<Icon icon='folder'></Icon>} activePlate={plate} setPlate={setPlate}>制谱器</Plate>
             <Plate name='college' icon={<Icon icon='star' type='solid'></Icon>} activePlate={plate} setPlate={setPlate}>收藏</Plate>
+            <Link href='/editor'>editor</Link>
+            <Link href='preview'>preview</Link>
         </div>
     </div>;
 }

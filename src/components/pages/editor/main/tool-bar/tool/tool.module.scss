@@ -4,5 +4,6 @@
 }
 
 .tool.active{
-    background-color: dodgerblue;
+    background-color: var(--active-bg);
+    color: var(--active-color);
 }

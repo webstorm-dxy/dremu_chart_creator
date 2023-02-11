@@ -1,4 +1,4 @@
-class Vec extends Array{
+class Vec extends Array<number>{
     constructor(...vec: number[]) {
         super();
         super.push(...vec);

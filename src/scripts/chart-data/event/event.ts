@@ -4,11 +4,9 @@ import Fraction from 'fraction.js';
 
 export class ChartEvent{
     time: Fraction;
-    lineId: number;
 
-    constructor({time, lineId}: ChartEventArgs) {
+    constructor({time}: ChartEventArgs) {
         this.time = time;
-        this.lineId = lineId;
     }
 }
 

@@ -1,6 +1,6 @@
 import styles from './header.module.scss';
 
-import HeaderMenu from '@components/header-menu/header-menu';
+import HeaderMenu from '@components/pages/editor/header-menu/header-menu';
 
 
 export default function Header() {
