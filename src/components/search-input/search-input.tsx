@@ -5,9 +5,10 @@ import { SearchInputProps, SearchInputState } from './search-input.d';
 import { FormEvent, useState } from 'react';
 import FCState from '@interfaces/function-component-state';
 import Button from '@components/button/button';
+import Search from '@components/search/search';
 
 export default function SearchInput(props: SearchInputProps) {
-    const { defaultValue, placeHolder, max, min, onInput, onSearch } = props;
+    const { defaultValue, placeHolder, max, min, onInput, onSearch, set, contents, filter } = props;
     const [value, setValue]: FCState<SearchInputState['value']> = useState(props.value);
 
     const onInputHandler = (e: FormEvent<HTMLInputElement>) => {
@@ -21,15 +22,17 @@ export default function SearchInput(props: SearchInputProps) {
     };
 
     return <div className={styles['search-input']}>
-        <input className={styles.input}
+        <Search
+            set={set}
+            contents={contents}
+            filter={filter}
             defaultValue={defaultValue}
             value={value}
             placeholder={placeHolder}
             max={max}
             min={min}
             onInput={onInputHandler}
-            onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }}>
-        </input>
+            onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }}/>
         <Button cls={styles.search} onClickHandler={(e) => { onSearchHandler(e, value); }}>
             <Icon icon='magnifying-glass' type="solid"></Icon>
         </Button>
