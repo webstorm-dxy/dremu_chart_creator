@@ -1,7 +1,7 @@
 import styles from './plate.module.scss';
 
 import useClassName from "@hooks/use-class-name";
-import { PlateProps, PlateState } from './plate.d';
+import { PlateProps } from './plate.d';
 
 export default function Plate({ cls, name, icon, active, activePlate, children, info, setPlate }: PlateProps) {
     if(activePlate === name) { active = true; }

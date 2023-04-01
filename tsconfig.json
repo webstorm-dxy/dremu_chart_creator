@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2016",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
+    "experimentalDecorators": true,
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -14,17 +15,20 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    // "isolatedModules": true,
     "jsx": "preserve",
     "sourceMap": true,
     "incremental": true,
     "baseUrl": "./src/",
     "paths": {
+      "@/*": [
+        "./*"
+      ],
       "@components/*": [
         "./components/*"
       ],
       "@public/*": [
-        "./public/*"
+        "../public/*"
       ],
       "@styles/*": [
         "./styles/*"
@@ -43,16 +47,20 @@
       ],
       "@images/*": [
         "./images/*"
+      ],
+      "@md/*": [
+        "../public/md/*"
       ]
     },
-    "strict": false
+    "strict": false,
+    "isolatedModules": true
   },
   "include": [
     "next-env.d.ts",
     "*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "__test__/recent-chart.test.ts.dis"  ],
   "exclude": [
     "node_modules",
     "app"

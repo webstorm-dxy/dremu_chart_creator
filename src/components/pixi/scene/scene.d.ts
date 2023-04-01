@@ -1,4 +1,4 @@
-import type { _ReactPixi } from "@inlet/react-pixi";
+import type { _ReactPixi } from "@pixi/react";
 
 
 export type SceneProps = React.PropsWithChildren<{

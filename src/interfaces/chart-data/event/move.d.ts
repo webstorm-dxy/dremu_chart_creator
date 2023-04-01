@@ -1,9 +1,14 @@
 import Ease from "@scripts/utils/ease";
-import { Vec2 } from "@scripts/utils/vec/vec";
 import {ChartSustainEventArgs } from "./event";
 
+export enum MoveTypes {
+    X,
+    Y
+}
+
+export type IMove = number;
 export interface ChartMoveEventArgs extends ChartSustainEventArgs{
-    from: Vec2;
-    to: Vec2;
+    from: IMove;
+    to: IMove;
     ease: Ease;
 }

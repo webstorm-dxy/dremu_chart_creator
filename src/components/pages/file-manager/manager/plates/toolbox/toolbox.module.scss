@@ -1,0 +1,13 @@
+.tool-list {
+    background-color: var(--background);
+    padding: var(--margin-small);
+    height: 3rem;
+    line-height: 3rem;
+    border-bottom: var(--border);
+}
+
+.tool-page {
+    margin: var(--margin);
+    min-height: calc(100% - 3rem);
+    overflow: auto;
+}

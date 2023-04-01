@@ -2,8 +2,8 @@ import { Texture } from "pixi.js";
 
 export interface BackgroundProps{
     texture: Texture;
-    viewWidth: number;
-    viewHeight: number;
+    width: number;
+    height: number;
     mask?: boolean;
     zIndex?: number;
 }

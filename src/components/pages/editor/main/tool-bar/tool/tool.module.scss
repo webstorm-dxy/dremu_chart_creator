@@ -1,0 +1,9 @@
+.tool{
+    min-height: 1.5rem;
+    max-width: 1.5rem;
+}
+
+.tool.active{
+    background-color: var(--active-bg);
+    color: var(--active-color);
+}

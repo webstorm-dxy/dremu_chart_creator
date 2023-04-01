@@ -1,12 +1,19 @@
-import { ChartMoveEventArgs } from "@interfaces/chart-data/event/move.d";
+import { ChartMoveEventArgs, IMove, MoveTypes } from "@interfaces/chart-data/event/move.d";
 import Ease from "@scripts/utils/ease";
-import { Vec2 } from "@scripts/utils/vec/vec";
-import {  ChartSustainEvent } from "./event";
+import { ChartEvent, SustainEvent } from "./event";
+import Fraction from "fraction.js";
+import { ChartMoveXEvent } from "./move-x";
+import { ChartMoveYEvent } from "./move-y";
 
-export class ChartMoveEvent extends ChartSustainEvent {
-    from: Vec2;
-    to: Vec2;
+
+@SustainEvent
+export class ChartMoveEvent extends ChartEvent {
+    from: IMove;
+    to: IMove;
     ease: Ease;
+    
+    // @SustainEvent
+    endTime: Fraction;
 
     constructor(args: ChartMoveEventArgs) {
         super(args);

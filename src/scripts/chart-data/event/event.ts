@@ -1,22 +1,24 @@
 import { ChartEventArgs, ChartSustainEventArgs } from "@interfaces/chart-data/event/event";
 import Fraction from 'fraction.js';
+import { Class } from '@interfaces/global-type';
 
 
-export class ChartEvent{
+export class ChartEvent {
     time: Fraction;
-    lineId: number;
 
-    constructor({time, lineId}: ChartEventArgs) {
-        this.time = time;
-        this.lineId = lineId;
+    constructor({ time }: ChartEventArgs) {
+        this.time = new Fraction(time);
     }
 }
 
-export class ChartSustainEvent extends ChartEvent{
-    duration: Fraction;
+export function SustainEvent<T extends Class>(target: T) {
+    class SustainEvent extends (target as unknown as Class) {
+        endTime: Fraction;
 
-    constructor(args: ChartSustainEventArgs) {
-        super(args);
-        this.duration = args.duration;
+        constructor(args: ChartSustainEventArgs) {
+            super(args);
+            this.endTime = new Fraction(args.endTime || args.time?.add(2) || 2);
+        }
     }
+    return SustainEvent as (typeof SustainEvent&T);
 }

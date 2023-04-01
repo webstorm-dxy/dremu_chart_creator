@@ -10,6 +10,8 @@ export interface EaseTypeInfo{
     name: string;
 }
 
+type startTime = number;
+type endTime = number;
 type startValue = number;
 type endValue = number;
-export type EaseResultArgs = [startValue, endValue] & Vec2;
+export type EaseResultArgs = [startValue, endValue] | [startTime, endTime, startValue, endValue];

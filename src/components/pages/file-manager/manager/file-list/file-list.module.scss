@@ -1,0 +1,12 @@
+.file-list {
+    position: relative;
+    min-height: calc(100vh - 3rem);
+    padding: var(--margin);
+
+    .empty {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

@@ -11,6 +11,7 @@ export class ChartDotEvent extends ChartEvent {
     constructor(args: ChartDotEventArgs) {
         super(args);
         this.ease = args.ease;
+        this.position = args.position;
         this.move = null;
         this.alpha = null;
     }

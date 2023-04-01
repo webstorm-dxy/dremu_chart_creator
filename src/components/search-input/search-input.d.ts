@@ -1,11 +1,8 @@
+import { SearchProps } from "@components/search/search.d";
 import { FormEventHandler } from "react";
 
-export interface SearchInputProps {
-    defaultValue?: string;
-    value?: string;
+export interface SearchInputProps extends SearchProps {
     placeHolder?: string;
-    max?: number;
-    min?: number;
     onInput?: FormEventHandler<HTMLInputElement>;
     onSearch?: Function;
 }

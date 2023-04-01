@@ -1,0 +1,19 @@
+.upload{
+    display: block;
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--margin-large) var(--margin);
+    background-color: var(--dark-background);
+    text-align: center;
+    border: var(--border);
+    border-radius: var(--radius);
+    transition: background-color .3s ease-in-out;
+
+    >div{
+        display: block !important;
+    }
+}
+
+.upload:hover{
+    background-color: var(--hover-bg);
+}
