@@ -6,8 +6,15 @@ import Head from "next/head";
 import { useState } from 'react';
 
 
+export enum PLATES {
+    EDITOR = 'editor',
+    RECENTLY = 'recently',
+    TOOLBOX = 'toolbox'
+}
+
+
 export default function FileManager() {
-    const [plate, setPlate] = useState('recently');
+    const [plate, setPlate] = useState<PLATES>(PLATES.EDITOR);
 
     return (
         <>
@@ -17,7 +24,7 @@ export default function FileManager() {
             </Head>
             <div className={styles.main}>
                 <LeftBar plate={plate} setPlate={setPlate}></LeftBar>
-                <Manager></Manager>
+                <Manager plate={plate}></Manager>
             </div>
         </>
     );

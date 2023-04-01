@@ -7,6 +7,6 @@ export default function Filter(props: FilterProps) {
     const {set, contents, filter} = props;
     
     return <div className={styles.filter}>
-        <SearchInput placeHolder='搜索文件' set={set}  contents={contents} filter={filter}></SearchInput>
+        <SearchInput placeHolder='搜索文件' set={set} contents={contents} filter={filter}></SearchInput>
     </div>;
 }

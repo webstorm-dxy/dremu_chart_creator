@@ -20,7 +20,7 @@ export default class HeaderMenu extends React.Component {
         const { item } = this.state;
 
         return (<div className={styles['header-menu']}>
-            <Button noShadow={true} key={'file' + item} showMenu={item === 'file'} onClickHandler={(() => { this.setState({ item: 'file' }); })} menu={<Menu>
+            <Button noShadow={true} key={'file' + item} showMenu={item === 'file'} onClick={(() => { this.setState({ item: 'file' }); })} menu={<Menu>
                 {/* <Option onClickHandler={() => { Chart.saveChart('project'); }}>保存</Option>
                 <Option onClickHandler={() => { Chart.saveChart('project', { download: true }); }}>导出</Option>
                 <Option onClickHandler={() => { Chart.saveChart('release'); }}>保存 json</Option>
@@ -30,14 +30,14 @@ export default class HeaderMenu extends React.Component {
                     Chart.autoSaveChart();
                 }} checked={!!getConfig('autoSaveChartTime')}>自动保存</Option> */}
             </Menu>}>文件</Button>
-            <Button noShadow={true} key={'edit' + item} showMenu={item === 'edit'} onClickHandler={(() => { this.setState({ item: 'edit' }); })} menu={<Menu>
+            <Button noShadow={true} key={'edit' + item} showMenu={item === 'edit'} onClick={(() => { this.setState({ item: 'edit' }); })} menu={<Menu>
                 {/* <Option onClickHandler={undo}>撤销</Option>
                 <Option onClickHandler={redo}>重做</Option>
                 <Hr></Hr>
                 <Option onClickHandler={(_ev, checked) => { tempConfig.referenceLineAlign = checked; }}
                     checked={tempConfig.referenceLineAlign}>对齐参考线</Option> */}
             </Menu>}>编辑</Button>
-            <Button noShadow={true} key={'view' + item} showMenu={item === 'view'} onClickHandler={(() => { this.setState({ item: 'view' }); })} menu={<Menu>
+            <Button noShadow={true} key={'view' + item} showMenu={item === 'view'} onClick={(() => { this.setState({ item: 'view' }); })} menu={<Menu>
                 {/* <Option onClickHandler={async (_ev, checked) => {
                     let fps = 0;
                     if (checked) {
@@ -51,7 +51,7 @@ export default class HeaderMenu extends React.Component {
                 {/* <Hr></Hr> */}
                 {/* <Option onClickHandler={() => {Stage.reset}}></Option> */}
             </Menu>}>视图</Button>
-            <Button noShadow={true} key={'preview' + item} showMenu={item === 'preview'} onClickHandler={(() => { this.setState({ item: 'preview' }); })} menu={<Menu>
+            <Button noShadow={true} key={'preview' + item} showMenu={item === 'preview'} onClick={(() => { this.setState({ item: 'preview' }); })} menu={<Menu>
                 {/* <Option key={`${Preview.connected}`}
                     onClickHandler={() => { Preview.connected ? Preview.disconnect() : Preview.connect(); }}
                     disabled={!tempConfig.canPreview}>{Preview.connected ? '断开预览器连接' : '连接预览器'}</Option>

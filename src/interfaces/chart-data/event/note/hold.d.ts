@@ -1,6 +1,5 @@
-import Fraction from "fraction.js";
 import { ChartNoteEventArgs } from "./note";
+import { ChartSustainEventArgs } from "../event";
 
-export interface ChartHoldNoteEventArgs extends ChartNoteEventArgs{
-    duration: Fraction;
+export interface ChartHoldNoteEventArgs extends ChartNoteEventArgs extends ChartSustainEventArgs{
 }

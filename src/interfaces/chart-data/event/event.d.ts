@@ -5,5 +5,5 @@ export interface ChartEventArgs{
 }
 
 export interface ChartSustainEventArgs extends ChartEventArgs{
-    duration: Fraction;
+    endTime: Fraction;
 }

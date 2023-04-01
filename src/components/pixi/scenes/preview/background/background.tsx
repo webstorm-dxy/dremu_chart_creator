@@ -1,5 +1,5 @@
 import type { Graphics as PGraphics } from 'pixi.js';
-import { Container, Graphics, Sprite } from '@inlet/react-pixi';
+import { Container, Graphics, Sprite } from '@pixi/react';
 import {BackgroundProps} from './background.d';
 import { useCallback } from 'react';
 import React from 'react';

@@ -9,7 +9,7 @@ import Search from '@components/search/search';
 
 export default function SearchInput(props: SearchInputProps) {
     const { defaultValue, placeHolder, max, min, onInput, onSearch, set, contents, filter } = props;
-    const [value, setValue]: FCState<SearchInputState['value']> = useState(props.value);
+    const [value, setValue]: FCState<SearchInputState['value']> = useState(props.value) as FCState<SearchInputState['value']>;
 
     const onInputHandler = (e: FormEvent<HTMLInputElement>) => {
         const input = e.target as HTMLInputElement;
@@ -33,7 +33,7 @@ export default function SearchInput(props: SearchInputProps) {
             min={min}
             onInput={onInputHandler}
             onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }}/>
-        <Button cls={styles.search} onClickHandler={(e) => { onSearchHandler(e, value); }}>
+        <Button cls={styles.search} onClick={(e) => { onSearchHandler(e, value); }}>
             <Icon icon='magnifying-glass' type="solid"></Icon>
         </Button>
     </div>;

@@ -15,7 +15,14 @@
       "all": false,
       "fs": {
         "all": true,
-        "scope": ["$RESOURCES/*"]
+        "scope": ["$RESOURCE/**"]
+      },
+      "window": {
+        "create": true,
+        "close": true
+      },
+      "app": {
+        "all": true
       }
     },
     "bundle": {
@@ -55,7 +62,13 @@
       "csp": null
     },
     "updater": {
-      "active": false
+      "active": true,
+      "dialog": true,
+      "endpoints": [
+        "https://raw.githubusercontent.com/hshqwq/Re-AstEdit-update-info/main/update-info.json",
+        "https://gitee.com/hshqwq/Re-AstEdit-update-info/raw/main/update-info.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM0QkI1QTVCMzI5NkIxRjYKUldUMnNaWXlXMXE3eEVLd1Z5eXhNWVF3Q01YSkhqY1JFR2RuUHdOMWpkeDZzbGJUQkhybFc5am4K"
     },
     "windows": [
       {

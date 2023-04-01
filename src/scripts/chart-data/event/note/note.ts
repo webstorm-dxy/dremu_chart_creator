@@ -1,15 +1,13 @@
-import { ChartNoteEventArgs } from "@interfaces/chart-data/event/note/note";
-import Fraction from "fraction.js";
-import { ChartSustainEvent } from "../event";
+import { ChartNoteEventArgs } from "@interfaces/chart-data/event/note/note.d";
+import { ChartEvent } from "../event";
 
-export class ChartNoteEvent extends ChartSustainEvent {
+export class ChartNoteEvent extends ChartEvent {
     flag: number;
     type: Readonly<number>;
     
-    constructor(args: ChartNoteEventArgs) {
-        super({duration: new Fraction(0), ...args});
+    protected constructor(args: ChartNoteEventArgs) {
+        super(args);
         this.flag = args.flag ?? 15;
         this.type = args.type ?? -1;
     }
-    
 }

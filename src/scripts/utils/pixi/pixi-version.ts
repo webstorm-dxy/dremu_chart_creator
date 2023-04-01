@@ -1,5 +1,5 @@
-// import * as PIXI from '@inlet/react-pixi';
-// import * as LegacyPIXI from '@inlet/react-pixi/legacy';
+// import * as PIXI from '@pixi/react';
+// import * as LegacyPIXI from '@pixi/react/legacy';
 // import { getConfig } from '@scripts/config/config';
 
 

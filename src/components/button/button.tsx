@@ -21,10 +21,10 @@ export default class Button extends React.Component {
     onClickHandler = (ev: React.MouseEvent) => {
         if (ev.currentTarget !== ev.target) { return; }
         const { showMenu } = this.state;
-        const { onClickHandler } = this.props;
+        const { onClick } = this.props;
 
         this.setState({ showMenu: !showMenu });
-        onClickHandler ? onClickHandler(ev, !showMenu) : null;
+        onClick ? onClick(ev, !showMenu) : null;
     };
     onMenuBlur = () => {
         this.setState({ showMenu: false });

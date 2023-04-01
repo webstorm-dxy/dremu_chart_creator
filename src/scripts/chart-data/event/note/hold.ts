@@ -1,11 +1,18 @@
-import { ChartHoldNoteEventArgs } from "@interfaces/chart-data/event/note/hold";
-import Fraction from "fraction.js";
+import { ChartHoldNoteEventArgs } from "@interfaces/chart-data/event/note/hold.d";
 import { ChartNoteEvent } from "./note";
+import { SustainEvent } from "../event";
+import Fraction from "fraction.js";
+import { NoteTypes } from "@/interfaces/chart-data/event/note/note.d";
 
+
+@SustainEvent
 export class ChartHoldNoteEvent extends ChartNoteEvent {
-    duration: Fraction;
+    type: Readonly<NoteTypes.Hold>;
+    
+    // @SustainEvent
+    endTime: Fraction;
 
     constructor(args: ChartHoldNoteEventArgs) {
-        super(args);
+        super({...args, type: NoteTypes.Hold});
     }
 }

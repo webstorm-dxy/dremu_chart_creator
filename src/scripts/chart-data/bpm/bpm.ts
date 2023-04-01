@@ -8,7 +8,7 @@ export default class Bpm extends Array<IBpm>{
 
     constructor(bpm: IBpm[], musicLength?: number) {
         super();
-        this.push(...bpm); 
+        this.push(...bpm);
         this.musicLength = musicLength ?? 120;
     }
 
@@ -30,17 +30,18 @@ export default class Bpm extends Array<IBpm>{
     }
 
     toTime(beat: Beat, longest: boolean = false): number {
+        if (!beat) return 0;
         const time: number = beat.valueOf();
         let beatLength: number = 0, lastBeatLength: number = 0, nextTime: number = 0;
 
         for (let i = 0; i < this.length; i++) {
-            if (i + 1 >= this.length){
+            if (i + 1 >= this.length) {
                 if (longest) {
                     nextTime = 9999999;
                 } else {
                     nextTime = this.musicLength;
                 }
-            } else{
+            } else {
                 nextTime = this[i + 1].beat.valueOf();
             }
             lastBeatLength = beatLength;
@@ -50,11 +51,12 @@ export default class Bpm extends Array<IBpm>{
                 return this[i].beat.valueOf() + 60 / this[i].bpm * (time - lastBeatLength);
             }
         }
-        
+
         return this.musicLength;
     }
 
     toBeat(time: number | Fraction): Fraction {
+        if (!time) return new Fraction(0);
         time instanceof Fraction ? null : time = new Fraction(time);
 
         let nextTime: Fraction = new Fraction(0);
@@ -83,7 +85,7 @@ export default class Bpm extends Array<IBpm>{
     setBpmList(bpmList: IBpm[]) {
         this.splice(0, this.length, ...bpmList);
     }
-    addBpm(bpm: IBpm) : Int{
+    addBpm(bpm: IBpm): Int {
         let added = false;
 
         for (let i = 0; i < this.length; i++) {
@@ -93,7 +95,7 @@ export default class Bpm extends Array<IBpm>{
                 if (!added) {
                     this.splice(i, 0, bpm);
                     added = true;
-                    return i+1;
+                    return i + 1;
                 }
             }
         }

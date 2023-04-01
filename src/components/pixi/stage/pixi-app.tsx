@@ -1,6 +1,6 @@
 import styles from './pixi-app.module.scss';
 
-import { Stage } from "@inlet/react-pixi";
+import { Stage } from "@pixi/react";
 import {PixiAppProps} from './pixi-app.d';
 import useClassName from '@hooks/use-class-name';
 

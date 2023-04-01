@@ -6,5 +6,16 @@ import { RefObject } from 'react';
 export interface PreviewSceneProps extends Omit<SceneProps, 'name'|'viewWidth'|'viewHeight'> {
     chart: ChartData;
     audio: RefObject<HTMLAudioElement>;
-    disableScale?: boolean; 
+    options: Partial<PreviewOptions & PreviewControls>;
+}
+
+export interface PreviewOptions {
+    speed: number;
+    controls: boolean;
+    maxFPS: number;
+    minFPS: number;
+}
+
+export interface PreviewControls {
+    showFPS: boolean;
 }

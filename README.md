@@ -9,15 +9,13 @@ yarn
 ```
 ---
 
-2. 修改第三方库错误的申明文件:
+2. 修改编辑器配置
 
-    将 `@inlet/react-pixi/index.d.ts` 中 `命名空间 _ReactPixi` 的 `IContainer` 类型 做如下修改。
+由于使用了实验性特性 —— (装饰器)[https://www.tslang.cn/docs/handbook/decorators.html]，所以部分编辑器进行特殊配置已保证正常运行。
 
-    ```typescript
-    /*-*/ type IContainer = Container<PIXI.DisplayObject>;
-    /*+*/ type IContainer = Container<PIXI.DisplayObject> & {children?: Container};
-    ```
----
+- vs code
+    1. 设置搜索 `experimental Decorators` 并开启。
+    2. 重启 vs code。
 
 3. 开发server:
 
@@ -45,7 +43,7 @@ yarn run dev::next
 
 pixi.js: <https://pixijs.download/release/docs/index.html>
 
-@inlet/react-pixi: <https://reactpixi.org/> 
+pixi-react: <https://pixijs.io/pixi-react/> 或 <https://reactpixi.org/> 
 
 crypto.js: <https://cryptojs.gitbook.io/docs/>
 
@@ -56,6 +54,10 @@ react: <https://react.docschina.org/docs/hello-world.html>
 node:  <https://nodejs.org/en/docs/>
 
 tauri: <https://tauri.app/zh-cn/v1/guides/>
+
+antd: <https://ant-design.antgroup.com/components/overview-cn/>
+
+react timeline editor: <https://zdarcy.com/>
 
 ## 图标使用方法
 

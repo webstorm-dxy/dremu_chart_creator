@@ -1,10 +1,10 @@
-import { ChartNoteEventArgs } from "@interfaces/chart-data/event/note/note";
+import { ChartNoteEventArgs, NoteTypes } from "@interfaces/chart-data/event/note/note.d";
 import { ChartNoteEvent } from "./note";
 
 export class ChartDragNoteEvent extends ChartNoteEvent {
-    type: Readonly<2>;
+    type: Readonly<NoteTypes.Drag>;
 
     constructor(args: ChartNoteEventArgs) {
-        super({...args, type: 2});
+        super({...args, type: NoteTypes.Drag});
     }
 }

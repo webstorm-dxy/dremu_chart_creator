@@ -1,5 +1,19 @@
 .main{
     position: relative;
+    display: flex;
     width: 100%;
     height: calc(100% - 2rem);
+
+    >.main-view{
+        width: 100%;
+
+        >.music-slide{
+            background-color: var(--background);
+
+            >.slider{
+                margin: 0 var(--margin-small);
+                // width: calc();
+            }
+        }
+    }
 }
