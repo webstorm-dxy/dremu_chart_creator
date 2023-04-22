@@ -1,7 +1,7 @@
 const nextMdx = require('@next/mdx');
 
 const withMDX = nextMdx({
-    extensions: /\.mdx?$/,
+    extension: /\.mdx?$/,
     options: {providerImportSource: '@mdx-js/react'}
 });
 
