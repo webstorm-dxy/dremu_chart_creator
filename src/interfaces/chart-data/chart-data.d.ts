@@ -1,3 +1,4 @@
+import Bpm from "@/scripts/chart-data/bpm/bpm";
 import ChartThemeEvent from "@/scripts/chart-data/event/theme";
 import ChartLine from "@/scripts/chart-data/line";
 import Fraction from "fraction.js";
@@ -11,6 +12,7 @@ export interface Meta{
     name: string;
     version: number;
     id: Readonly<string>;
+    bpm: Bpm;
 }
 
 export interface Data{

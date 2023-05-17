@@ -5,6 +5,7 @@ import { saveAudio } from "@scripts/utils/fs/audio";
 import ChartLine from "./line";
 import ChartThemeEvent from "./event/theme";
 import Fraction from "fraction.js";
+import Bpm from "./bpm/bpm";
 
 
 
@@ -55,9 +56,9 @@ export default class ChartData{
     }
 }
 
-export function createNewChart(name:string): ChartData {
+export function createNewChart(name:string, bpm?: Bpm): ChartData {
     return new ChartData({
-        meta: {name},
+        meta: {name, bpm: bpm || new Bpm([{beat: new Fraction(0), bpm: 120}]), id: createMd5()},
         data:{
             lines: [new ChartLine({id: 0, start: [0, 0], speed: 1})],
             themes: [new ChartThemeEvent({time: new Fraction(0)})]

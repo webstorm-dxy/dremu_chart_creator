@@ -3,6 +3,9 @@ import Tool from '../../../tools/tool/tool';
 import { Modal, Form, Input, Upload, Button, message, Breadcrumb } from 'antd';
 import { BaseDirectory, createDir, exists, writeFile } from '@tauri-apps/api/fs';
 import ChartData, { createNewChart, createAecFile } from '@scripts/chart-data/chart-data';
+import { bpmMeasurement } from '@/scripts/utils/bpm-measurement';
+import Bpm from '@/scripts/chart-data/bpm/bpm';
+import Fraction from 'fraction.js';
 
 
 interface Props {
@@ -109,11 +112,14 @@ export default function EditorTools({readCharts, path}: Props) {
                                 return true;
                             }
                             return false;
-                        }} onChange={(info) => {
+                        }} onChange={async(info) => {
                             if (info.file.status === 'done') {
                                 musicFile = info.file.originFileObj;
 
-                                chart = createNewChart(value);
+                                const bpm = await bpmMeasurement(musicFile) || 120;
+                                message.info('音频 BPM: '+bpm);
+
+                                chart = createNewChart(value, new Bpm([{beat: new Fraction(0), bpm}]));
                             }
                         }}>
                             <Button>上传</Button>
