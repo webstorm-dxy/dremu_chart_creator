@@ -21,6 +21,10 @@
         "create": true,
         "close": true
       },
+      "shell": {
+        "all": false,
+        "open": true
+      },
       "app": {
         "all": true
       }

@@ -67,9 +67,9 @@ export function createNewChart(name:string, bpm?: Bpm): ChartData {
 }
 
 export async function createAecFile(chart: ChartData, music: ArrayBuffer|Blob|File) {
-    const musicArrBuf = await saveAudio(chart.getId(), music);
+    await saveAudio(chart.getId(), music);
      
-    return {chart, music: musicArrBuf};
+    return chart;
 }
 
 export function parseAecChart(aecChart: ChartAecFile) {

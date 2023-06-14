@@ -17,6 +17,9 @@ export default function BPM() {
         multiple: true,
         accept: 'audio/*',
         maxCount: 32,
+        customRequest: (options) => {
+            options.onSuccess(options.file);
+        },
         beforeUpload(file) {
             if (!file.type.includes('audio/')) {
                 message.error(`${file.name} 不是一个受支持的音频文件`);

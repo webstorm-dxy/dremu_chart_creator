@@ -10,7 +10,6 @@ import { createRef, useState } from 'react';
 import { PreviewControls, PreviewOptions } from '@/components/pixi/scenes/preview/preview.d';
 import { InputNumber, Form, Switch, Drawer, Button } from 'antd';
 import configs from '@scripts/manager/config';
-import { Container } from '@pixi/react';
 
 const tempChartData = new ChartData({ meta: { name: 'test' }, data: { lines: [new ChartLine({ id: 0, speed: 0, start: [0, 0] })] } });
 

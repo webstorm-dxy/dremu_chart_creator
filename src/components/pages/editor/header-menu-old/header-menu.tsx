@@ -1,7 +1,7 @@
 import styles from './header-menu.module.scss';
 
 import React from 'react';
-import { HeaderMenuProps, HeaderMenuState } from './header-menu.d';
+import { HeaderMenuProps, HeaderMenuState } from './header-menu';
 import Button from '@components/button/button';
 import Menu, { Option, MenuHr as Hr } from '@components/menu/menu';
 

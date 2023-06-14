@@ -6,9 +6,10 @@ import { FormEvent, useState } from 'react';
 import FCState from '@interfaces/function-component-state';
 import Button from '@components/button/button';
 import Search from '@components/search/search';
+import useClassName from '@/hooks/use-class-name';
 
 export default function SearchInput(props: SearchInputProps) {
-    const { defaultValue, placeHolder, max, min, onInput, onSearch, set, contents, filter } = props;
+    const { defaultValue, placeHolder, max, min, onInput, onSearch, set, contents, filter, className } = props;
     const [value, setValue]: FCState<SearchInputState['value']> = useState(props.value) as FCState<SearchInputState['value']>;
 
     const onInputHandler = (e: FormEvent<HTMLInputElement>) => {
@@ -21,8 +22,9 @@ export default function SearchInput(props: SearchInputProps) {
         onSearch && onSearch(e, value);
     };
 
-    return <div className={styles['search-input']}>
+    return <div className={useClassName(styles['search-input'], className)}>
         <Search
+            className='shadow-sm'
             set={set}
             contents={contents}
             filter={filter}
@@ -32,7 +34,7 @@ export default function SearchInput(props: SearchInputProps) {
             max={max}
             min={min}
             onInput={onInputHandler}
-            onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }}/>
+            onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }} />
         <Button cls={styles.search} onClick={(e) => { onSearchHandler(e, value); }}>
             <Icon icon='magnifying-glass' type="solid"></Icon>
         </Button>

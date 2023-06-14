@@ -17,7 +17,7 @@ export default function Tools({ path, setPath, tools, plate }: ToolsProps) {
     return <div className={styles.tools}>
         <div>
             <Breadcrumb>
-            <Breadcrumb.Item onClick={() => { setPath([]); }}>{PlateChinese[plate]}</Breadcrumb.Item>
+            <Breadcrumb.Item onClick={() => { setPath([]); }}>{PlateChinese[plate] || plate}</Breadcrumb.Item>
                 {path.map((dir, i, arr) => <Breadcrumb.Item key={dir}
                     onClick={i === path.length - 1 ? () => { } : () => { setPath(arr.slice(0, i + 1)); }}>
                     {dir}

@@ -3,11 +3,13 @@ import { ManagerProps } from './manager.d';
 import EditorFiles from "./plates/editor/editor";
 import RecentlyFiles from "./plates/recently/recently";
 import Toolbox from "./plates/toolbox/toolbox";
+import FileSystem from "./plates/file-system/file-system";
 
 
 const Plates = {
     recently: RecentlyFiles,
     editor: EditorFiles,
+    fileSystem: FileSystem,
     toolbox: Toolbox,
 };
 

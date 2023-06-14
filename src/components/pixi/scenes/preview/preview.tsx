@@ -34,14 +34,13 @@ async function loadAssets(): Promise<boolean> {
 }
 
 export default function PreviewScene(props: PreviewSceneProps) {
-    const { viewWidth, viewHeight } = props;
+    const { viewWidth=960, viewHeight=540 } = props;
     const options = { ...defaultConfigs, ...props.options };
-    const audio: HTMLAudioElement = props.audio.current;
     const transformer = new CoordinateTransformer(viewHeight);
 
     // states
     const [isLoading, setIsLoading] = useState<boolean>(!loaded);
-    const [time, setTime] = useState<number>(audio?.currentTime || 0);
+    const [time, setTime] = useState<number>(0);
     const [fps, setFps] = useState<number>(0);
     // console.log(options, { ...defaultConfigs, ...props.options });
 
@@ -56,7 +55,7 @@ export default function PreviewScene(props: PreviewSceneProps) {
         ticker.maxFPS = previewConfig.maxFPS || 0;
         ticker.minFPS = previewConfig.minFPS ?? 0;
         setFps(Math.round(ticker.FPS));
-        setTime(audio?.currentTime || 0);
+        setTime(0);
     });
 
 

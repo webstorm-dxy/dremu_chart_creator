@@ -11,7 +11,7 @@ import Fraction from "fraction.js";
 export const bpm = new Bpm([{ bpm: 120, beat: new Fraction(0) }]);
 
 export const chart = new ChartData({
-    meta: { name: 'Test' },
+    meta: { name: 'Test', bpm },
     data: {
         lines: [
             new ChartLine({

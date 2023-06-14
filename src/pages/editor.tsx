@@ -9,7 +9,8 @@ import { EditorConfigs, EditorContext } from '@interfaces/pages/editor.d';
 import { BaseDirectory, exists, readTextFile } from '@tauri-apps/api/fs';
 import { Modal, Spin } from 'antd';
 import ChartData, { parseAecChart } from '@scripts/chart-data/chart-data';
-
+import turnTo, { Pages } from '@/scripts/manager/page';
+import {useSetState} from 'ahooks';
 
 
 export const editorContext: Context<EditorContext> = createContext({
@@ -22,12 +23,12 @@ export const editorContext: Context<EditorContext> = createContext({
 });
 
 export default function Editor() {
-    const [editorConfigs, setEditorConfigs]: FCState<EditorConfigs> = useState({path: ''});
-    const [chart, setChart]:FCState<ChartData> = useState();
-    const [musicUrl, setMusicUrl]:FCState<string> = useState('');
+    const [editorConfigs, setEditorConfigs]: FCState<EditorConfigs> = useSetState({path: ''});
+    const [chart, setChart] = useState<ChartData>();
+    const [musicUrl, setMusicUrl] = useState<string>('');
 
     useEffect(() => {
-        const paramArr = window.location.search.replace('?', '').split(',');
+        const paramArr = window.location.search.slice(1).split(',');
         const params: Partial<EditorConfigs> = {};
 
         function noChart() {
@@ -35,7 +36,7 @@ export default function Editor() {
                 title: '错误',
                 okText: '返回',
                 onOk() {
-                    open('/', '_self');
+                    turnTo(Pages.FILE_MANAGER);
                 },
                 content: '未获取到谱面',
             });
@@ -53,15 +54,15 @@ export default function Editor() {
         if (!path) {
             noChart();
         }
+
+        setEditorConfigs({ path });
+
         exists(path, { dir: BaseDirectory.Resource }).catch(noChart).then(async (v) => {
             if (!v) { noChart(); return; }
 
             const aecChart = await readTextFile(path, { dir: BaseDirectory.Resource }).then(v => JSON.parse(v));
-            // const {chart, music} = await parseAecChart(aecChart);
-            // const musicUrl = URL.createObjectURL(music);
-            // open(musicUrl, '_blank');
-            // setChart(chart);
-            // setMusicUrl(musicUrl);
+            const chart = await parseAecChart(aecChart);
+            setChart(chart);
         });
     }, []);
 

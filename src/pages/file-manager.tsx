@@ -9,7 +9,8 @@ import { useState } from 'react';
 export enum PLATES {
     EDITOR = 'editor',
     RECENTLY = 'recently',
-    TOOLBOX = 'toolbox'
+    FILE_SYSTEM = 'fileSystem',
+    TOOLBOX = 'toolbox',
 }
 
 

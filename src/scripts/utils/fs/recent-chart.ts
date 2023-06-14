@@ -1,4 +1,5 @@
 import { BaseDirectory, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import dayjs from "dayjs";
 
 
 export interface RecentChart {
@@ -59,7 +60,13 @@ export async function addRecent(_chart: Omit<RecentChart, 'date'>) {
         newCharts.push(chart);
         hadArr.set(chart.path, {date: chart.date, index: i});
     }
-    newCharts = newCharts.filter(v => v);
+    newCharts = newCharts.sort((a, b) => dayjs(a.date).isAfter(b.date) ? -1 : 1).splice(64, newCharts.length);
 
     return setRecent(newCharts);
+}
+
+export async function deleteRecent(path: string) {
+    const charts = await getRecent();
+
+    setRecent(charts.splice(charts.findIndex(v => v.path === path), 1));
 }

@@ -1,3 +1,4 @@
+import { AES as aes } from "crypto-js";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // 参数格式
@@ -21,6 +22,8 @@ export default function Handler(req: NextApiRequest, res: NextApiResponse<string
             return;
         }
 
+        // if(username !== 'passed') return res.status(200).send('false');
+
         if(token) {
             // todo 校验token
             res.status(200).send(token);
@@ -30,7 +33,7 @@ export default function Handler(req: NextApiRequest, res: NextApiResponse<string
         // todo 验证用户名和密码
 
         // todo 生成token, 算法随意, 务必使用需要密钥的算法
-        const newToken = username + password + macAddress;
+        const newToken = aes.encrypt(username + password + macAddress, 'dev-mode').toString();
 
         // todo 将token写入数据库并覆盖旧token
 
