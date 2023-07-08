@@ -3,29 +3,19 @@ import styles from '@styles/Editor.module.scss';
 import Head from "next/head";
 import Header from '@components/pages/editor/header/header';
 import Main from '@components/pages/editor/main/main';
-import { Context, createContext, useEffect, useState } from 'react';
-import FCState from '@interfaces/function-component-state';
-import { EditorConfigs, EditorContext } from '@interfaces/pages/editor.d';
+import { useEffect } from 'react';
 import { BaseDirectory, exists, readTextFile } from '@tauri-apps/api/fs';
 import { Modal, Spin } from 'antd';
-import ChartData, { parseAecChart } from '@scripts/chart-data/chart-data';
+import { parseAecChart } from '@scripts/chart-data/chart-data';
 import turnTo, { Pages } from '@/scripts/manager/page';
-import {useSetState} from 'ahooks';
-
-
-export const editorContext: Context<EditorContext> = createContext({
-    editorConfigs: {path: ''},
-    chart: undefined,
-    musicUrl: '',
-    setEditorConfigs() { },
-    setChart() { },
-    setMusicUrl() { },
-});
+import { SetStateContextType, useSetStateContextValue } from '@/hooks/use-state-context';
+import { EditorConfigs, defaultEditorContext, EditorContext } from '@/context/editor/editor';
+import { setRecordState } from '@/hooks/set-record-state';
+import AudioManager from '@/components/audio-manager/audio-manager';
 
 export default function Editor() {
-    const [editorConfigs, setEditorConfigs]: FCState<EditorConfigs> = useSetState({path: ''});
-    const [chart, setChart] = useState<ChartData>();
-    const [musicUrl, setMusicUrl] = useState<string>('');
+    const editorContextValue = useSetStateContextValue(defaultEditorContext, { type: SetStateContextType.Set });
+    // const [music, musicContextValue] = useAudioStateContextValue(defaultMusicContext);
 
     useEffect(() => {
         const paramArr = window.location.search.slice(1).split(',');
@@ -55,34 +45,39 @@ export default function Editor() {
             noChart();
         }
 
-        setEditorConfigs({ path });
+        setRecordState(editorContextValue.setAction, prev => prev.editorConfigs.path = path);
 
         exists(path, { dir: BaseDirectory.Resource }).catch(noChart).then(async (v) => {
             if (!v) { noChart(); return; }
 
             const aecChart = await readTextFile(path, { dir: BaseDirectory.Resource }).then(v => JSON.parse(v));
             const chart = await parseAecChart(aecChart);
-            setChart(chart);
+            setRecordState(editorContextValue.setAction, prev => prev.chart = chart);
         });
     }, []);
 
     return (
-        <editorContext.Provider value={{ editorConfigs, chart, musicUrl, setEditorConfigs, setChart, setMusicUrl}}>
-            <Head>
-                <title>Re: AstEdit - Chart Editor for Astaeus - Vestar Team</title>
-                <meta httpEquiv="Content-Type" content="text/html;charset=UTF-8" />
-            </Head>
-            <div className={styles.main}>
-                {!chart && <div className={styles["spin-container"]}>
-                    <Spin className={styles.spin} size='large' tip="loading..." />
-                </div>}
-                <Header></Header>
-                <Main></Main>
-            </div>
-        </editorContext.Provider>
+        <EditorContext.Provider value={editorContextValue}>
+            <AudioManager audios={{music: {props: {src: ''}}}}>
+            {/* <MusicContext.Provider value={musicContextValue}> */}
+                <Head>
+                    <title>Re: AstEdit - Chart Editor for Astaeus - Vestar Team</title>
+                    <meta httpEquiv="Content-Type" content="text/html;charset=UTF-8" />
+                </Head>
+                <div className={styles.main}>
+                    {!editorContextValue.state.chart && <div className={styles["spin-container"]}>
+                        <Spin className={styles.spin} size='large' tip="loading..." />
+                    </div>}
+                    <Header></Header>
+                    <Main></Main>
+                </div>
+                {/* {music} */}
+            {/* </MusicContext.Provider> */}
+            </AudioManager>
+        </EditorContext.Provider>
     );
 }
 
-function readTextFiles() {
-    throw new Error('Function not implemented.');
-}
+// function readTextFiles() {
+//     throw new Error('Function not implemented.');
+// }

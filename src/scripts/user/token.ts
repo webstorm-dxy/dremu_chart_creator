@@ -1,5 +1,7 @@
 import { BaseDirectory, removeFile, writeTextFile } from "@tauri-apps/api/fs";
 import { readTextFile } from "../utils/fs/readFile";
+import { getMacAddress } from "../utils/get-mac-address";
+import globalConfigs from "../config";
 
 export async function checkToken(token: string): Promise<boolean> {
     return new Promise<boolean>(async (resolve) => {
@@ -7,12 +9,18 @@ export async function checkToken(token: string): Promise<boolean> {
         // return resolve(false);
 
         if(!checkTokenFormat(token)) return resolve(false);
+        const macAddressMd5 = await getMacAddress();
 
-        const res = await fetch('/api/checkToken/', {
+        const res = await fetch(globalConfigs.api.checkToken, {
             mode: "cors",
-            body: token,
+            method: 'POST',
             cache: "no-cache",
-            method: 'POST'
+            body: JSON.stringify({
+                username: null,
+                passwordMd5: null,
+                token,
+                macAddressMd5
+            }),
         }).then(async(v) => await v.text() === 'true');
 
         if(!res) await deleteToken();
@@ -21,6 +29,7 @@ export async function checkToken(token: string): Promise<boolean> {
 }
 
 function checkTokenFormat(token: string): boolean {
+    return true;
     const res = /^[a-z0-9+=/]{44,}$/i.test(token);
     if (!res) deleteToken();
     return res;
@@ -28,7 +37,7 @@ function checkTokenFormat(token: string): boolean {
 
 export function saveToken(token: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-        if (!checkTokenFormat(token)) resolve(false);
+        if (!checkTokenFormat(token)) return resolve(false);
         
         writeTextFile('token', token, { dir: BaseDirectory.Resource })
             .then(() => resolve(true))
@@ -41,7 +50,7 @@ function readToken() :Promise<string> {
 }
 
 export function getToken(): Promise<string> {
-    return readToken().then(value => value);
+    return readToken().then(value => value).catch(() => null);
 }
 
 export function deleteToken() {

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Vec2 } from "@scripts/utils/vec/vec";
+
 
 export type EasePointInfo = Vec2;
 

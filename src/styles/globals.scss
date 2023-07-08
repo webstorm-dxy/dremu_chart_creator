@@ -144,3 +144,16 @@ a {
 .ant-btn-primary:hover {
   background-color: #4096ff;
 }
+
+.ant-tabs-nav {
+  height: 2rem;
+  margin: 0 0 .25rem 0;
+}
+
+.ant-switch {
+  background: rgba(0, 0, 0, 0.25);
+
+  .ant-switch-inner {
+    white-space: nowrap;
+  }
+}

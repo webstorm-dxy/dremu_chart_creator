@@ -1,4 +1,5 @@
 const nextMdx = require('@next/mdx');
+const withLess = require('next-with-less');
 
 const withMDX = nextMdx({
     extension: /\.mdx?$/,
@@ -9,12 +10,13 @@ const withMDX = nextMdx({
 
 /** @type {import('next').nextConfig} */
 nextConfig = {
-    // webpack: (config) => {
-    //     config.module.rules.push()
-    // },
+    webpack: (config) => {
+        config.experiments.topLevelAwait = true;
+        return config;
+    },
     reactStrictMode: true,
     images: { unoptimized: true, },
     pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']
 };
 
-module.exports = withMDX(nextConfig);
+module.exports = withLess(withMDX(nextConfig));

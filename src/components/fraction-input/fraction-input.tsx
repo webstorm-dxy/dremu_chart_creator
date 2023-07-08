@@ -5,7 +5,7 @@ import { FractionInputProps } from './fraction-input.d';
 
 
 export default function FractionInput(props: FractionInputProps) {
-    const { value: fraction, onChange } = props;
+    const { value: fraction=new Fraction(0), onChange } = props;
     const value = fraction.simplify();
 
     const [int, setInt] = useState<number>(Math.floor(value.valueOf()));

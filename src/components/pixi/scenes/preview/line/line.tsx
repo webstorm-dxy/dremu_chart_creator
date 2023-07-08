@@ -1,7 +1,7 @@
 import { bpm } from "@components/pages/preview/chart.tem";
 import useDegree from "@hooks/use-degree";
 import { Container, Graphics, Text } from "@pixi/react";
-import { Vec2 } from "@interfaces/global-type";
+
 import Ease from "@scripts/utils/ease";
 import { Container as PContainer, Graphics as PGraphics, LINE_CAP, TextStyle, filters } from "pixi.js";
 import { createRef, useCallback, useContext, useEffect, useMemo } from "react";
@@ -31,7 +31,7 @@ function drawBezier(g: PGraphics, from: Vec2, to: Vec2, ease: number) {
     g.moveTo(to[0], to[1]);
 }
 
-const lineBlurFilter = new filters.BlurFilter();
+// const lineBlurFilter = new filters.BlurFilter();
 
 function Point(props: PointProps) {
     const { text, draw, color, graphicsProps } = props;
@@ -63,7 +63,7 @@ function Point(props: PointProps) {
 export default function Line(props) {
     
     
-    return null;
+    return <Point></Point>;
 }
 
 // export default function Line(props: LineProps) {

@@ -8,7 +8,10 @@ export default class Bpm extends Array<IBpm>{
 
     constructor(bpm: IBpm[], musicLength?: number) {
         super();
-        this.push(...bpm);
+        
+        for (let i = 0; i < bpm.length; i++) {
+            this.push(bpm[i]);
+        }
         this.musicLength = musicLength ?? 120;
     }
 

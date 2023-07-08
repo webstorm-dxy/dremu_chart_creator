@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "lib": [
       "dom",
       "dom.iterable",
@@ -58,10 +58,12 @@
     "next-env.d.ts",
     "*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "__test__/recent-chart.test.ts.dis"  ],
+    "**/*.tsx",
+    "__test__/recent-chart.test.ts.dis"
+  ],
   "exclude": [
     "node_modules",
-    "app"
+    "app",
+    "src-tauri"
   ]
 }

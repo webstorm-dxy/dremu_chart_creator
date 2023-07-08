@@ -1,7 +1,7 @@
 import { LineEventArgs, LineEvents } from "@interfaces/chart-data/event/line-events";
 import { ChartLineArgs } from "@interfaces/chart-data/line";
 import { Int } from "@interfaces/global-type";
-import { Vec2 } from "@scripts/utils/vec/vec";
+
 import { ChartDotEvent } from "./event/dot";
 import { ChartMoveEvent } from "./event/move";
 import { ChartNoteEvent } from "./event/note/note";

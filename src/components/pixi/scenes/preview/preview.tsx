@@ -34,7 +34,7 @@ async function loadAssets(): Promise<boolean> {
 }
 
 export default function PreviewScene(props: PreviewSceneProps) {
-    const { viewWidth=960, viewHeight=540 } = props;
+    const { viewWidth = 960, viewHeight = 540 } = props;
     const options = { ...defaultConfigs, ...props.options };
     const transformer = new CoordinateTransformer(viewHeight);
 
@@ -45,10 +45,11 @@ export default function PreviewScene(props: PreviewSceneProps) {
     // console.log(options, { ...defaultConfigs, ...props.options });
 
     useEffect(() => {
-        // 加载资源
-        loadAssets().then(loaded => {
-            setIsLoading(!loaded);
-        });
+        if (!loaded)
+            // 加载资源
+            loadAssets().then(loaded => {
+                setIsLoading(!loaded);
+            });
     }, [isLoading]);
 
     useTick((delta, ticker) => {
@@ -57,7 +58,6 @@ export default function PreviewScene(props: PreviewSceneProps) {
         setFps(Math.round(ticker.FPS));
         setTime(0);
     });
-
 
     return <Scene name="preview" viewWidth={viewWidth} viewHeight={viewHeight}>
         <OptionsContext.Provider value={options}>
@@ -81,8 +81,6 @@ export default function PreviewScene(props: PreviewSceneProps) {
                         time={time}
                         data={lineData} />)}
                 </Container>}
-
-
 
             </TransformerContext.Provider>
         </OptionsContext.Provider>

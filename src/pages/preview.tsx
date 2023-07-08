@@ -10,8 +10,9 @@ import { createRef, useState } from 'react';
 import { PreviewControls, PreviewOptions } from '@/components/pixi/scenes/preview/preview.d';
 import { InputNumber, Form, Switch, Drawer, Button } from 'antd';
 import configs from '@scripts/manager/config';
+import { Text } from '@pixi/react';
 
-const tempChartData = new ChartData({ meta: { name: 'test' }, data: { lines: [new ChartLine({ id: 0, speed: 0, start: [0, 0] })] } });
+// const tempChartData = new ChartData({ meta: { name: 'test' }, data: { lines: [new ChartLine({ id: 0, speed: 0, start: [0, 0] })] } });
 
 const dev = true;
 
@@ -49,12 +50,15 @@ export default function Preview() {
             </Head>
             <div className={styles.main}>
                 <PixiApp
-                    cls={styles.stage}
+                    className={styles.stage}
                     width={960}
                     height={540}
-                    options={{ backgroundColor: 0x000000, autoStart: false, antialias: true }}>
-                    <PreviewScene audio={audioRef} chart={tempChartData} viewWidth={960} viewHeight={540}
-                        options={{ ...options, ...controls }} />
+                    renderOnComponentChange
+                    raf={false}
+                    options={{ backgroundColor: 0x000000, autoStart: true, antialias: true }}>
+                    <Text text='Test' position={[50, 50]}/>
+                    {/* <PreviewScene audio={audioRef} chart={tempChartData} viewWidth={960} viewHeight={540}
+                        options={{ ...options, ...controls }} /> */}
                 </PixiApp>
 
                 <div>

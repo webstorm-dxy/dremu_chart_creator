@@ -21,14 +21,14 @@ function setMacAddress(mac: string) {
 
 export async function getMacAddress(): Promise<string> {
     return new Promise<IMacAddress>((resolve, reject) => {
-        if (macAddressMd5) return macAddressMd5;
+        if (macAddressMd5) return resolve(macAddressMd5);
         if (!invoke) {
             reject('Tauri api - invoke is not loaded');
             return;
         }
         invoke('get_mac_address')
             .then((res: string) => {
-                setMacAddress(res);
+                return resolve(setMacAddress(res));
             });
     });
 }

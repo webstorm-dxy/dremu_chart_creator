@@ -1,5 +1,5 @@
 import { EaseResultArgs, EaseTypeInfo } from "@interfaces/util/ease";
-import { Vec2 } from "./vec/vec";
+
 
 const easeTypes: EaseTypeInfo[] = [
     { countFn(t) { return t; }, name: "linearity" }, // 0

@@ -1,10 +1,10 @@
-import { createContext } from "react";
+import { createStateContext } from "@/hooks/use-state-context";
+
+
 
 export interface IAppContext {
-    setAppContext: Readonly<Function>;
 }
 
-export const defaultAppContext: IAppContext = {setAppContext: () => {}};
+export const defaultAppContext: IAppContext = {};
 
-const AppContext = createContext<IAppContext>(defaultAppContext);
-export default AppContext;
+export const AppContext = createStateContext<IAppContext>(defaultAppContext);

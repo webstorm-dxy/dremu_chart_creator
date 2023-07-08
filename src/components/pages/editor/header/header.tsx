@@ -1,14 +1,15 @@
-import { editorContext } from '@/pages/editor';
 import styles from './header.module.scss';
 
 import Icon from '@/components/icon/icon';
 import turnTo, { Pages } from '@/scripts/manager/page';
 import { Menu, MenuProps } from 'antd';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import useClassName from '@/hooks/use-class-name';
+import { useStateContext } from '@/hooks/use-state-context';
+import { EditorContext } from '@/context/editor/editor';
 
 export default function Header() {
-    const { editorConfigs: { path } } = useContext(editorContext);
+    const [{ editorConfigs: { path } },] = useStateContext(EditorContext);
 
     const items = useMemo<MenuProps['items']>(() => [
         {

@@ -12,31 +12,34 @@ interface IArgs {
 export default function Handler(req: NextApiRequest, res: NextApiResponse<string>) {
     const body = req.body;
 
-    try {
-        // 解析校验参数
-        const args: IArgs = JSON.parse(body);
-        const {username, password, macAddress, token} = args;
 
-        if (!((username && password) || token) || !macAddress) {
-            res.status(500).send('error in args');
-            return;
-        }
+    res.status(200).send('dev token');
+    // return;
+    // try {
+    //     // 解析校验参数
+    //     const args: IArgs = JSON.parse(body);
+    //     const {username, password, macAddress, token} = args;
 
-        // if(username !== 'passed') return res.status(200).send('false');
+    //     if (!((username && password) || token) || !macAddress) {
+    //         res.status(500).send('error in args');
+    //         return;
+    //     }
 
-        if(token) {
-            // todo 校验token
-            res.status(200).send(token);
-            return;
-        }
+    //     // if(username !== 'passed') return res.status(200).send('false');
 
-        // todo 验证用户名和密码
+    //     if(token) {
+    //         // todo 校验token
+    //         res.status(200).send(token);
+    //         return;
+    //     }
 
-        // todo 生成token, 算法随意, 务必使用需要密钥的算法
-        const newToken = aes.encrypt(username + password + macAddress, 'dev-mode').toString();
+    //     // todo 验证用户名和密码
 
-        // todo 将token写入数据库并覆盖旧token
+    //     // todo 生成token, 算法随意, 务必使用需要密钥的算法
+    //     const newToken = aes.encrypt(username + password + macAddress, 'dev-mode').toString();
 
-        res.status(200).send(newToken);
-    } catch (e) { res.status(500).send('error in args'); }
+    //     // todo 将token写入数据库并覆盖旧token
+
+    //     res.status(200).send(newToken);
+    // } catch (e) { res.status(500).send('error in args'); }
 }

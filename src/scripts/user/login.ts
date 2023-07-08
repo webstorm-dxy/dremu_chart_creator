@@ -3,6 +3,7 @@ import { getMacAddress } from "../utils/get-mac-address";
 import { checkToken, getToken, saveToken } from "./token";
 import turnTo, { Pages } from "../manager/page";
 import { throttle } from 'lodash';
+import globalConfigs from "../config";
 
 interface ILoginOptions {
     username?: string;
@@ -54,17 +55,19 @@ function loginByPassword(username: string, password: string) {
         if (!username || !password) return resolve(false);
 
         const passwordMd5 = md5(password).toString();
-        const macAddressMd5 = getMacAddress();
-
+        const macAddressMd5 = await getMacAddress();
+        
         // 请求登录
-        const res = await fetch('/api/login', {
+        const res = await fetch(globalConfigs.api.login, {
             mode: 'cors',
             method: 'POST',
             cache: 'no-cache',
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 username,
-                password: passwordMd5,
-                macAddress: macAddressMd5
+                passwordMd5,
+                token: null,
+                macAddressMd5
             })
         }).then(v => v.text());
 

@@ -7,6 +7,7 @@ import FCState from '@interfaces/function-component-state';
 import {MainContext} from './main.d';
 import ContentBar from './content-bar/content-bar';
 import PreviewView from './preview/preview-view';
+import TimelineEditor from './timeline-editor/timeline-editor';
 
 
 export const mainContext: Context<MainContext> = createContext({
@@ -23,6 +24,7 @@ export default function Main() {
             <ContentBar />
             <div className={styles['main-view']}>
                 <PreviewView />
+                <TimelineEditor/>
             </div>
         </mainContext.Provider>
     </div>;

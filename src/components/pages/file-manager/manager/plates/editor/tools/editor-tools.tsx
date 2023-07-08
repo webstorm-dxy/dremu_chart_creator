@@ -1,6 +1,6 @@
 import Icon from '@components/icon/icon';
 import Tool from '../../../tools/tool/tool';
-import { Modal, Form, Input, Upload, Button, message, Breadcrumb } from 'antd';
+import { Modal, Form, Input, Upload, Button, message } from 'antd';
 import { BaseDirectory, createDir, exists, writeFile } from '@tauri-apps/api/fs';
 import ChartData, { createNewChart, createAecFile } from '@scripts/chart-data/chart-data';
 import { bpmMeasurement } from '@/scripts/utils/bpm-measurement';
@@ -81,7 +81,7 @@ export default function EditorTools({readCharts, path}: Props) {
                         const aecFile = await createAecFile(chart, musicFile);
                         await writeFile(
                             _path,
-                            aecFile.chart.exportAec(),
+                            aecFile.exportAec(),
                             { dir: BaseDirectory.Resource }
                         ).then(readCharts());
                         message.success(`创建成功`);
@@ -119,7 +119,7 @@ export default function EditorTools({readCharts, path}: Props) {
                                 const bpm = await bpmMeasurement(musicFile) || 120;
                                 message.info('音频 BPM: '+bpm);
 
-                                chart = createNewChart(value, new Bpm([{beat: new Fraction(0), bpm}]));
+                                chart = createNewChart(value, new Bpm([{beat: new Fraction(0), bpm: bpm || 120}]));
                             }
                         }}>
                             <Button>上传</Button>

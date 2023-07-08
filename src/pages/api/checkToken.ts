@@ -10,6 +10,6 @@ interface IArgs {
 
 export default function Handler(req: NextApiRequest, res: NextApiResponse<string>) {
     res.status(200)
-        // .send('false')
+        // .send('false');
         .send('true');
 }

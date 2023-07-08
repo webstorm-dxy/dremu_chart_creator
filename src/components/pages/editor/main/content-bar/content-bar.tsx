@@ -1,7 +1,11 @@
+import Content from "./content";
+import MaterialManager from "./material-manager";
+
 export default function ContentBar() {
     
     
     return <div className='h-full w-1/4 bg-white z-10 shadow'>
-        
+        <Content/>
+        <MaterialManager/>
     </div>;
 }

@@ -8,7 +8,6 @@ import Fraction from "fraction.js";
 import Bpm from "./bpm/bpm";
 
 
-
 export default class ChartData{
     /**
      * @description 谱面数据的类
@@ -75,6 +74,8 @@ export async function createAecFile(chart: ChartData, music: ArrayBuffer|Blob|Fi
 export function parseAecChart(aecChart: ChartAecFile) {
     const {meta, data} = aecChart;
     const {lines, themes} = data;
+
+    meta.bpm = new Bpm(meta.bpm.map(bpm => { bpm.beat = new Fraction(bpm.beat); return bpm; }));
 
     if (lines.length === 0) {
         lines.push({id: 0, speed: 1, start: [0, 0]});

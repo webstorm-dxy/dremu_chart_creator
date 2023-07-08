@@ -2,7 +2,7 @@ import './option.module.scss';
 
 import React, { useState } from 'react';
 import { OptionProps } from './option.d';
-import Switch from '@components/switch/switch';
+import Switch from '@/components/label/label';
 import useClassName from '@hooks/use-class-name';
 
 

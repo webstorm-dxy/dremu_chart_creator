@@ -1,7 +1,7 @@
 import ChartLine from "@scripts/chart-data/line";
 import { Graphics, TextStyle } from "pixi.js";
 import { _ReactPixi } from "@pixi/react";
-import { Vec2 } from "@/interfaces/global-type";
+
 
 export interface PointProps extends _ReactPixi.IContainer {
     position?: Vec2;
