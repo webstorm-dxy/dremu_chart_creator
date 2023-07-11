@@ -11,8 +11,8 @@ export default class TimelineTicker extends TimelineEngine {
 
     }
 
-    setBeat(beat: Fraction | number) {
-        super.setTime(beat instanceof Fraction ? beat.valueOf() : beat);
+    setBeat(beat: Fraction | number, isTick?: boolean) {
+        super.setTime(beat instanceof Fraction ? beat.valueOf() : beat, isTick);
     }
 
     protected _tick = (data: { now: number; autoEnd?: boolean; to?: number }) => {

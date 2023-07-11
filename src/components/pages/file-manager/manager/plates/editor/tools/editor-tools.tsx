@@ -107,13 +107,15 @@ export default function EditorTools({readCharts, path}: Props) {
                         label='音乐'
                         name='music'
                         rules={[{ required: true }]}>
-                        <Upload maxCount={1} accept='audio/*' beforeUpload={(file) => {
-                            if (/^audio\/.+$/.test(file.type)) {
+                        <Upload maxCount={1} accept='audio/ogg' beforeUpload={(file) => {
+                            if (file.type === 'audio/ogg') {
                                 return true;
                             }
+                            message.error('不支持的文件');
                             return false;
                         }} onChange={async(info) => {
                             if (info.file.status === 'done') {
+                                if (info.file.type !== 'audio/ogg') return false;
                                 musicFile = info.file.originFileObj;
 
                                 const bpm = await bpmMeasurement(musicFile) || 120;

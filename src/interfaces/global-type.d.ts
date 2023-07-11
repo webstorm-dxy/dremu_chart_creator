@@ -1,12 +1,5 @@
-
-
-export type Int = number;
-
-export {Vec2};
-export {Vec3};
-export {Vec4};
-
-export type Class = new (...args: any[]) => {};
-export type ClassFunction = Function;
-export type Merge<T, K = keyof T> = Record<K, T[K]>;
-export type Method<T extends Function = Function> = T;
+declare type Int = number;
+declare type Class = new (...args: any[]) => {};
+declare type ClassFunction = Function;
+declare type Merge<T, K = keyof T> = Record<K, T[K]>;
+declare type Method<T extends Function = Function> = T;

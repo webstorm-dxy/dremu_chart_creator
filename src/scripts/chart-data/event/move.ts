@@ -1,9 +1,7 @@
-import { ChartMoveEventArgs, IMove, MoveTypes } from "@interfaces/chart-data/event/move.d";
+import { ChartMoveEventArgs, IMove } from "@interfaces/chart-data/event/move.d";
 import Ease from "@scripts/utils/ease";
 import { ChartEvent, SustainEvent } from "./event";
 import Fraction from "fraction.js";
-import { ChartMoveXEvent } from "./move-x";
-import { ChartMoveYEvent } from "./move-y";
 
 
 @SustainEvent

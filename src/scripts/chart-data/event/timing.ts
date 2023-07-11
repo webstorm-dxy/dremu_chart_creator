@@ -8,7 +8,4 @@ export class ChartTimingEvent extends ChartEvent {
         super(args);
         this.speedRatio = args.speedRatio;
     }
-    getSpeed(t: number): number {
-        
-    }
 }

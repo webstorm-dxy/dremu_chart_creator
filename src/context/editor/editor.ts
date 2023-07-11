@@ -2,7 +2,9 @@ import { createStateContext } from "@/hooks/use-state-context";
 import { ITimelineEffects } from "@/interfaces/timeline";
 import ChartData from "@/scripts/chart-data/chart-data";
 import TimelineTicker from "@/scripts/timeline/ticker";
-import { TimelineEngine, TimelineRow } from "@xzdarcy/react-timeline-editor";
+import { TimelineRow } from "@xzdarcy/react-timeline-editor";
+import { HTMLMediaProps } from "react-use/lib/factory/createHTMLMediaHook";
+import { defaultMusicContext } from "./music";
 
 export interface EditorConfigs {
     path: string;
@@ -19,11 +21,14 @@ export interface EditorConfigs {
 export interface IEditorContext {
     editorConfigs: EditorConfigs;
     chart: ChartData | null;
-    musicUrl: string;
+    musicProps: HTMLMediaProps;
+    editing: {
+        line: Int|null;
+    },
     timeline: {
         data: TimelineRow[];
         effects: ITimelineEffects;
-        engine: TimelineEngine;
+        engine: TimelineTicker;
         beatBar: number;
         scaleWidth: number;
     }
@@ -42,9 +47,10 @@ export const defaultEditorContext: IEditorContext = {
         }
     },
     chart: null,
-    musicUrl: '',
+    musicProps: defaultMusicContext.props,
+    editing: {line: null},
     timeline: {
-        data: [{id: 'music', actions: [{id: 'music', start: 0, end: 120, effectId: 'audio', movable: false, flexible: false}]}],
+        data: [],
         effects: {},
         engine: new TimelineTicker(),
         beatBar: 4,

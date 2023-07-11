@@ -3,7 +3,6 @@ import styles from '@styles/Editor.module.scss';
 import Head from "next/head";
 import Header from '@components/pages/editor/header/header';
 import Main from '@components/pages/editor/main/main';
-import { useEffect } from 'react';
 import { BaseDirectory, exists, readTextFile } from '@tauri-apps/api/fs';
 import { Modal, Spin } from 'antd';
 import { parseAecChart } from '@scripts/chart-data/chart-data';
@@ -11,13 +10,19 @@ import turnTo, { Pages } from '@/scripts/manager/page';
 import { SetStateContextType, useSetStateContextValue } from '@/hooks/use-state-context';
 import { EditorConfigs, defaultEditorContext, EditorContext } from '@/context/editor/editor';
 import { setRecordState } from '@/hooks/set-record-state';
-import AudioManager from '@/components/audio-manager/audio-manager';
+import { useAudio } from 'react-use';
+import { MusicContext } from '@/context/editor/music';
+import { HTMLMediaProps } from 'react-use/lib/factory/createHTMLMediaHook';
+import { getAudio } from '@/scripts/utils/fs/audio';
+import { useMount } from 'ahooks';
+import { useEffect } from 'react';
 
 export default function Editor() {
     const editorContextValue = useSetStateContextValue(defaultEditorContext, { type: SetStateContextType.Set });
-    // const [music, musicContextValue] = useAudioStateContextValue(defaultMusicContext);
+    const [music, musicState, musicControls] = useAudio(editorContextValue.state.musicProps);
+    const musicContextValue = {props: music.props as HTMLMediaProps, state: musicState, controls: musicControls};
 
-    useEffect(() => {
+    useMount(() => {
         const paramArr = window.location.search.slice(1).split(',');
         const params: Partial<EditorConfigs> = {};
 
@@ -53,13 +58,22 @@ export default function Editor() {
             const aecChart = await readTextFile(path, { dir: BaseDirectory.Resource }).then(v => JSON.parse(v));
             const chart = await parseAecChart(aecChart);
             setRecordState(editorContextValue.setAction, prev => prev.chart = chart);
+            
+            const music = new Blob([await getAudio(chart.getId())], {type: 'audio/ogg'});
+
+            const musicUrl = URL.createObjectURL(music);
+
+            setRecordState(editorContextValue.setAction, prev => prev.musicProps = {src: musicUrl, id: 'music'});
         });
-    }, []);
+    });
+
+    useEffect(() => {
+        editorContextValue.state.chart?.meta.bpm.setMusicLength(musicState.duration);
+    }, [musicState.duration]);
 
     return (
         <EditorContext.Provider value={editorContextValue}>
-            <AudioManager audios={{music: {props: {src: ''}}}}>
-            {/* <MusicContext.Provider value={musicContextValue}> */}
+            <MusicContext.Provider value={musicContextValue}>
                 <Head>
                     <title>Re: AstEdit - Chart Editor for Astaeus - Vestar Team</title>
                     <meta httpEquiv="Content-Type" content="text/html;charset=UTF-8" />
@@ -71,13 +85,8 @@ export default function Editor() {
                     <Header></Header>
                     <Main></Main>
                 </div>
-                {/* {music} */}
-            {/* </MusicContext.Provider> */}
-            </AudioManager>
+                {music}
+            </MusicContext.Provider>
         </EditorContext.Provider>
     );
 }
-
-// function readTextFiles() {
-//     throw new Error('Function not implemented.');
-// }

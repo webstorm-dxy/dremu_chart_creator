@@ -31,10 +31,10 @@ function drawBezier(g: PGraphics, from: Vec2, to: Vec2, ease: number) {
     g.moveTo(to[0], to[1]);
 }
 
-// const lineBlurFilter = new filters.BlurFilter();
+const lineBlurFilter = new filters.BlurFilter();
 
 function Point(props: PointProps) {
-    const { text, draw, color, graphicsProps } = props;
+    const { text='', draw, color, graphicsProps } = props;
     let { textStyle } = props;
     const transformer = useContext(TransformerContext);
 

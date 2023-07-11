@@ -4,6 +4,7 @@ import { EditorContext } from "@/context/editor/editor";
 import { useStateContext } from "@/hooks/use-state-context";
 import { TabsProps } from "antd";
 import { useState } from "react";
+import LineManager from "./line-manager";
 
 export default function MaterialManager() {
     const [editorValue, setEditorValue] = useStateContext(EditorContext);
@@ -15,6 +16,11 @@ export default function MaterialManager() {
             key: 'bpm',
             label: 'BPM',
             children: <BPMEditor bpm={chart?.meta.bpm}/>
+        },
+        {
+            key: 'line',
+            label: '线',
+            children: <LineManager />
         }
     ];
     

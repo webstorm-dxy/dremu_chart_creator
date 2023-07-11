@@ -2,7 +2,7 @@ import styles from './header.module.scss';
 
 import Icon from '@/components/icon/icon';
 import turnTo, { Pages } from '@/scripts/manager/page';
-import { Menu, MenuProps } from 'antd';
+import { Menu, MenuProps, Modal } from 'antd';
 import { useMemo } from 'react';
 import useClassName from '@/hooks/use-class-name';
 import { useStateContext } from '@/hooks/use-state-context';
@@ -14,7 +14,18 @@ export default function Header() {
     const items = useMemo<MenuProps['items']>(() => [
         {
             key: 'back-file-manager',
-            onClick: () => turnTo(Pages.FILE_MANAGER),
+            onClick: () => {
+                Modal.confirm({
+                    type: 'warning',
+                    title: "确定离开编辑页面吗",
+                    content: '未保存的内容将会丢失！',
+                    cancelText: '取消',
+                    okText: '确定',
+                    onOk: () => {
+                        turnTo(Pages.FILE_MANAGER);
+                    }
+                });
+            },
             label: <><Icon icon='angle-left'></Icon>返回</>,
             style: { color: 'var(--active-color)' }
         },
