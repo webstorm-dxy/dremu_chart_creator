@@ -7,5 +7,5 @@ export type IEventProps = PropsWithChildren<{
 
 export default function Event({children, className}: IEventProps) {
     
-    return <div className={useClassName('re', className)}>{children}</div>;
+    return <div className={useClassName('absolute left-1/2 -translate-x-1/2', className)}>{children}</div>;
 }
