@@ -1,6 +1,5 @@
 import styles from './preview.module.scss';
 
-import { chart } from "@/components/pages/preview/chart.tem";
 import PreviewScene from "@/components/pixi/scenes/preview/preview";
 import PixiApp from "@/components/pixi/stage/pixi-app";
 import { Switch } from "antd";
@@ -10,10 +9,11 @@ import { setRecordState } from '@/hooks/set-record-state';
 import useClassName from "@/hooks/use-class-name";
 import { useStateContext } from "@/hooks/use-state-context";
 import { throttle } from "lodash";
-import { WheelEventHandler, useCallback } from "react";
+import { WheelEventHandler, useCallback, useContext } from "react";
 import Label from '@/components/label/label';
 import PercentInput from '@/components/percentInput/percentInput';
 import { UserConfigContext } from '@/context/user-config';
+import { MusicContext } from '@/context/editor/music';
 
 const height: number = 540;
 const width: number = height / 9 * 16;
@@ -21,6 +21,7 @@ const width: number = height / 9 * 16;
 export default function PreviewView() {
     const [editorContext, setEditorContext] = useStateContext(EditorContext);
     const [userConfigContext,] = useStateContext(UserConfigContext);
+    const { ref: musicRef } = useContext(MusicContext);
 
     const setScale = (scale: number | ((prevScale: number) => number)) => setRecordState(
         setEditorContext,
@@ -47,7 +48,8 @@ export default function PreviewView() {
                 height={height}
                 paused={editorContext.editorConfigs.preview.paused}
             >
-                {!!editorContext.chart && <PreviewScene chart={editorContext.chart} options={{}} />}
+                {!!editorContext.chart && <PreviewScene chart={editorContext.chart}
+                    time={musicRef.current?.currentTime || 0} />}
             </PixiApp>
         </div>
         {/* <div className="h-16"></div> */}

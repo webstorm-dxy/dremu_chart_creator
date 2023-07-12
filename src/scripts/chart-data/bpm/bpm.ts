@@ -1,6 +1,5 @@
 import { IBpm } from "@interfaces/chart-data/bpm";
 import { Beat } from "@interfaces/chart-data/chart-data";
-import { Int } from "@interfaces/global-type";
 import Fraction from "fraction.js";
 
 export default class Bpm extends Array<IBpm>{

@@ -3,7 +3,9 @@ import styles from './toolbox.module.scss';
 import { Empty, Segmented } from "antd";
 import { ReactNode, useMemo, useState } from "react";
 import { IToolPage } from "./tool-page";
-import BPM from "./tool-pages/bpm/bpm";
+import dynamic from 'next/dynamic';
+
+const BPM = dynamic(() => import('./tool-pages/bpm/bpm'), {ssr: false});
 
 const toolPages: IToolPage[] = [
     {

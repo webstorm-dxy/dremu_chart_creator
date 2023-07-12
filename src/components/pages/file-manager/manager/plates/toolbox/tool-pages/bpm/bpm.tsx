@@ -1,9 +1,10 @@
 import styles from './bpm.module.scss';
 
 import Icon from "@/components/icon/icon";
-import { bpmMeasurement } from "@/scripts/utils/bpm-measurement";
 import { Button, Form, List, message, Upload, UploadFile, UploadProps } from "antd";
 import { useState } from "react";
+
+const bpmMeasurement = (await import('@/scripts/utils/bpm-measurement')).bpmMeasurement;
 
 type File = UploadFile & { bpm?: number | string };
 

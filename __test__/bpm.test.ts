@@ -1,6 +1,7 @@
-import { bpmMeasurement } from "../src/scripts/utils/bpm-measurement";
 import fs from 'fs';
 
+
+const bpmMeasurement = (await import('@/scripts/utils/bpm-measurement')).bpmMeasurement;
 
 const file = fs.readFileSync('D:\\杨昕睿-资料\\code\\ReAstEdit\\__test__\\assets\\default.ogg');
 

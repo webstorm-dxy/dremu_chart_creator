@@ -1,27 +1,29 @@
 import styles from './timeline-editor.module.scss';
 
-import { Button, InputNumber, Select, Slider, Space, Switch } from "antd";
-import ToolBar from "@/components/tool-bar/tool-bar";
 import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
-import Label from "@/components/label/label";
-import { beatBars } from "@/scripts/data/beat-bar";
 import { Timeline, TimelineAction, TimelineRow, TimelineState } from "@xzdarcy/react-timeline-editor";
 import { throttle } from "lodash";
 import { UserConfigContext } from "@/context/user-config";
 import { useContext, useEffect, useMemo, useRef } from "react";
 import useClassName from "@/hooks/use-class-name";
-import timelineEffects from '@/components/timeline-effect/effects';
-import dayjs from 'dayjs';
-import Icon from '@/components/icon/icon';
+import { timelineEffectRenders } from '@/components/timeline-effect/effects';
 import { MusicContext } from '@/context/editor/music';
 import Fraction from 'fraction.js';
-import { useMount } from 'ahooks';
-import { ChartNoteEventType } from '@/interfaces/chart-data/chart-data.d';
+import { useDeepCompareEffect, useKeyPress, useMount, useRafInterval, useUpdateEffect } from 'ahooks';
+import { ChartNoteEventType, IChartEvent, IChartSustainEvent } from '@/interfaces/chart-data/chart-data.d';
+import Tools from './tools';
+import { createMd5 } from '@/scripts/utils/crypto/md5';
+import { EventCreator } from '@/scripts/chart-data/chart-data';
+import SelectedEffect from '@/components/timeline-effect/effects/selected-effect/selected-effect';
+import { copy, deleteSelected, paste } from '@/scripts/timeline/clip-board';
+import { getSelectedData } from '@/scripts/timeline/get-data';
 
 function actionRender(action: TimelineAction, row: TimelineRow) {
-    return timelineEffects[action.effectId]?.(action, row);
+    const effectRender = timelineEffectRenders[action.effectId]?.(action, row);
+    if (action.selected) return <SelectedEffect>{effectRender}</SelectedEffect>;
+    return effectRender;
 }
 
 export default function TimelineEditor() {
@@ -35,15 +37,13 @@ export default function TimelineEditor() {
 
     const timelineRef = useRef<TimelineState>(null);
 
-    const beatBarOptions = useMemo(() => beatBars.map(info => { return { value: info[1], label: `${info[0]}/${info[1]}` }; }), [beatBars]);
-
     const timelineScaleLength = useMemo(
         () => (editorContext.chart?.meta.bpm.toBeat(musicContext.state.duration).valueOf() || 0) + 20,
         [editorContext.chart?.meta.bpm, musicContext.state.duration]
     );
 
     function setBeat(beat: number | Fraction) {
-        musicContext.controls.seek(editorContext.chart?.meta.bpm?.toTime(new Fraction(beat)) - timeOffset || 0);
+        musicContext?.controls?.seek(editorContext.chart?.meta.bpm?.toTime(new Fraction(beat)) - timeOffset || 0);
     }
 
     function setScrollLeft(beat: number | Fraction) {
@@ -51,10 +51,125 @@ export default function TimelineEditor() {
         timelineRef.current?.setScrollLeft(offset);
     }
 
+    const onChangeHandler = function <K extends 'notes' | 'dots' | 'moves' | 'alphas' | 'rotates' | 'timings'>(data: TimelineRow[]) {
+        if (!editorContext.chart) return;
+        setRecordState(setEditorContext, prev => {
+            // prev.timeline.data = data;
+
+            const line = prev.chart?.getLine(editorContext.editing.line);
+
+            data.forEach(row => {
+                const actions = row.actions;
+                const keyName: K = row.id as K;
+
+                function updateEvents<T extends IChartEvent>(events: T[], createFn: (attr?: Record<string, unknown>) => T): T[] {
+                    return actions.sort((a, b) => a.start - b.start).map(action => {
+                        let ev = events.find(ev => ev.id === action.id);
+
+                        if (!ev) {
+                            const attrs: Record<string | number | symbol, unknown> = { id: action.id };
+                            switch (action.effectId) {
+                                case 'note-0': attrs.type = ChartNoteEventType.Tap; break;
+                                case 'note-1': attrs.type = ChartNoteEventType.Hold; break;
+                                case 'note-2': attrs.type = ChartNoteEventType.Darg; break;
+                                case 'note-3': attrs.type = ChartNoteEventType.Flick; break;
+                            }
+                            ev = createFn(attrs);
+                        }
+
+                        ev.time = new Fraction(action.start);
+                        if ((ev as unknown as IChartSustainEvent).endTime) (ev as unknown as IChartSustainEvent).endTime = new Fraction(action.end);
+                        return ev;
+                    });
+                }
+
+                if (keyName === 'notes')
+                    line.notes = updateEvents(line.notes, EventCreator.createUnknownNoteEvent);
+                else if (keyName === 'dots')
+                    line.dots = updateEvents(line.dots, EventCreator.createDotEvent);
+                else if (keyName === 'alphas')
+                    line.alphas = updateEvents(line.alphas, EventCreator.createAlphaEvent);
+                else if (keyName === 'moves')
+                    line.moves = updateEvents(line.moves, EventCreator.createMoveEvent);
+                else if (keyName === 'timings')
+                    line.timings = updateEvents(line.timings, EventCreator.createTimingEvent);
+                else if (keyName === 'rotates')
+                    line.rotates = updateEvents(line.rotates, EventCreator.createRotateEvent);
+            });
+
+            prev.chart?.setLine(line.id, line);
+
+        });
+    };
+
+    const onClickActionHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { action }: { action: TimelineAction, row: TimelineRow }) => {
+        setRecordState(setEditorContext, prev => {
+            if (ev.shiftKey) {
+                prev.editing.selected.add(action.id);
+            } else {
+                prev.editing.selected.clear();
+                prev.editing.selected.add(action.id);
+            }
+            prev.timeline.data.forEach(row => {
+                row.actions.forEach(act => prev.editing.selected.has(act.id) || (act.selected = false));
+            });
+            action.selected = true;
+        });
+    };
+
+    const onDoubleClickRowHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { row, time }: { row: TimelineRow, time: number }) => {
+        const { id } = row;
+        if (id === 'notes')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                flexible: false,
+                effectId: 'note-0',
+            }));
+        if (id === 'dots')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                flexible: false,
+                effectId: 'dot',
+            }));
+        if (id === 'alphas')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                effectId: 'alpha',
+            }));
+        if (id === 'moves')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                effectId: 'move',
+            }));
+        if (id === 'rotates')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                effectId: 'rotate',
+            }));
+        if (id === 'timings')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
+                id: createMd5(),
+                start: time,
+                end: time,
+                flexible: false,
+                effectId: 'timing',
+            }));
+    };
+
     useMount(() => {
         editorContext.timeline.engine.on('beforeSetTime', ev => {
             setBeat(ev.time);
-            return false;
+            // return false;
         });
     });
 
@@ -78,64 +193,146 @@ export default function TimelineEditor() {
         }
     }, [timelineRef.current]);
 
-    useEffect(() => {
+    const updateTime = () => {
         const tLine = timelineRef.current;
-        if (tLine) {
+        const musicRef = musicContext.ref.current;
+        if (tLine && musicRef) {
             const bpm = editorContext.chart?.meta.bpm;
-            editorContext.timeline.engine.setBeat(bpm?.toBeat(musicContext.state.time + timeOffset) || 0, true);
+            editorContext.timeline.engine.setBeat(bpm?.toBeat(musicRef.currentTime + timeOffset) || 0, true);
             setScrollLeft(tLine.getTime());
         }
-    }, [timelineRef.current, musicContext.state.time]);
+    };
+
+    useEffect(updateTime, [timelineRef.current]);
+
+    useRafInterval(updateTime, 16.667);
 
     useEffect(() => {
         const line = editorContext.chart?.getLine(editorContext.editing.line);
 
-        if(!line) return;
+        if (!line) return setRecordState(setEditorContext, prev => prev.timeline.data = []);
 
         setRecordState(setEditorContext, prev => {
+            // prev.editing.selected.clear();
             prev.timeline.data = [
                 {
                     id: 'notes',
-                    actions: line.notes.map((note, i) => {
+                    actions: line.notes.map((note) => {
                         return {
-                            id: 'note-' + i,
+                            id: note.id,
                             start: note.time.valueOf(),
-                            end: note.type === ChartNoteEventType.Hold ? note.endTime.valueOf() : note.time.valueOf(),
+                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf(),
                             effectId: 'note-' + note.type,
+                            selected: editorContext.editing.selected.has(note.id),
                             flexible: note.type === ChartNoteEventType.Hold
+                        };
+                    }),
+                },
+                {
+                    id: 'dots',
+                    actions: line.dots.map((dot) => {
+                        const time = dot.time.valueOf();
+                        return {
+                            id: dot.id,
+                            start: time,
+                            end: time,
+                            effectId: 'dot',
+                            selected: editorContext.editing.selected.has(dot.id),
+                            flexible: false
+                        };
+                    }),
+                },
+                {
+                    id: 'moves',
+                    actions: line.moves.map((move) => {
+                        return {
+                            id: move.id,
+                            start: move.time.valueOf(),
+                            end: move.endTime.valueOf(),
+                            effectId: 'move',
+                            selected: editorContext.editing.selected.has(move.id),
+                        };
+                    }),
+                },
+                {
+                    id: 'alphas',
+                    actions: line.alphas.map((alpha) => {
+                        return {
+                            id: alpha.id,
+                            start: alpha.time.valueOf(),
+                            end: alpha.endTime.valueOf(),
+                            effectId: 'alpha',
+                            selected: editorContext.editing.selected.has(alpha.id),
+                        };
+                    }),
+                },
+                {
+                    id: 'rotates',
+                    actions: line.rotates.map((rotate) => {
+                        return {
+                            id: rotate.id,
+                            start: rotate.time.valueOf(),
+                            end: rotate.endTime.valueOf(),
+                            effectId: 'rotate',
+                            selected: editorContext.editing.selected.has(rotate.id),
+                        };
+                    }),
+                },
+                {
+                    id: 'timings',
+                    actions: line.timings.map((timing) => {
+                        const time = timing.time.valueOf();
+                        return {
+                            id: timing.id,
+                            start: time,
+                            end: time,
+                            effectId: 'timing',
+                            selected: editorContext.editing.selected.has(timing.id),
+                            flexible: false,
                         };
                     }),
                 }
             ];
         });
-    }, [editorContext.editing.line]);
+    }, [editorContext.editing.line, editorContext.editing.update]);
 
-    console.log(timeline.data);
+    useDeepCompareEffect(
+        () => onChangeHandler(editorContext.timeline.data),
+        [editorContext.timeline.data.map(row => row.actions.length)]
+    );
+
+    useKeyPress('ctrl.x', throttle(() => {
+        const data = getSelectedData(editorContext);
+        copy(setEditorContext, data);
+        deleteSelected(setEditorContext);
+    }, 1000), { exactMatch: true });
+
+    useKeyPress('delete', throttle(() => {
+        deleteSelected(setEditorContext);
+    }, 500), { exactMatch: true });
+
+    useKeyPress('ctrl.c', throttle(() => {
+        copy(setEditorContext, getSelectedData(editorContext));
+    }, 1000), { exactMatch: true });
+
+    useKeyPress('ctrl.v', throttle(() => {
+        paste(setEditorContext, editorContext.timeline.engine.getTime());
+    }, 1000), { exactMatch: true });
+
+    // console.log(editorContext.timeline.data, editorContext.editing.selected);
 
     return <div className="w-full h-1/2 relative border-t-2 border-gray-200 overflow-hidden">
-        <ToolBar>
-            <Label label="网格吸附"><Switch checked={editorConfigs.snip.gird} onChange={(c) => setRecordState(setEditorContext, prev => prev.editorConfigs.snip.gird = c)} /></Label>
-            <Label label="对齐辅助线"><Switch checked={editorConfigs.snip.dragline} onChange={(c) => setRecordState(setEditorContext, prev => prev.editorConfigs.snip.dragline = c)} /></Label>
-            <Label label="小结"><Select className="w-16" size="small" value={timeline.beatBar} options={beatBarOptions} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.beatBar = v)} /></Label>
-            <Label label="缩放"><Slider className="w-32" value={timeline.scaleWidth} min={40} max={640} step={40} tooltip={{ formatter: (v) => v / 1.6 + '%' }} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.scaleWidth = v)} /></Label>
-            <Label label="延迟"><InputNumber className='w-16' size='small' value={editorContext.chart?.meta.offset || 0} onChange={val => setRecordState(setEditorContext, prev => prev.chart?.setMeta('offset', val))}/></Label>
-        </ToolBar>
-        <ToolBar>
-            <Label label="时间"><Space>
-                <Button type="text" shape='circle' onClick={() => musicContext.state.paused ? musicContext.controls.play() : musicContext.controls.pause()}><Icon icon={musicContext.state.paused ? 'play' : 'pause'} /></Button>
-                <Slider className="w-96" value={musicContext.state.time || 0} min={0} max={musicContext.state.duration || 0} step={0.01} tooltip={{ formatter: (v) => dayjs(v * 1000).format('mm:ss.SSS') }} onChange={v => { musicContext?.controls?.seek(v); }} />
-                <Button type="text" shape='circle'><Icon icon={musicContext?.state?.muted ? 'volume-xmark' : 'volume-high'} /></Button>
-            </Space></Label>
-        </ToolBar>
+        <Tools />
         <div className={useClassName("flex", styles['timeline-box'])}>
             <Timeline
                 key={timeline.beatBar}
                 ref={timelineRef}
                 editorData={editorContext.timeline.data}
                 effects={editorContext.timeline.effects}
-                onChange={() => {}}
+                onChange={onChangeHandler}
                 style={{ width: '100%', height: '100%' }}
                 engine={editorContext.timeline.engine}
+                rowHeight={32}
                 getActionRender={actionRender}
                 autoScroll={true}
                 scale={1}
@@ -145,6 +342,8 @@ export default function TimelineEditor() {
                 maxScaleCount={Number.MAX_SAFE_INTEGER}
                 gridSnap={editorConfigs.snip.gird}
                 dragLine={editorConfigs.snip.dragline}
+                onDoubleClickRow={onDoubleClickRowHandler}
+                onClickAction={onClickActionHandler}
             />
         </div>
     </div>;

@@ -30,9 +30,9 @@ export async function checkToken(token: string): Promise<boolean> {
 
 function checkTokenFormat(token: string): boolean {
     return true;
-    const res = /^[a-z0-9+=/]{44,}$/i.test(token);
-    if (!res) deleteToken();
-    return res;
+    // const res = /^[a-z0-9+=/]{44,}$/i.test(token);
+    // if (!res) deleteToken();
+    // return res;
 }
 
 export function saveToken(token: string): Promise<boolean> {

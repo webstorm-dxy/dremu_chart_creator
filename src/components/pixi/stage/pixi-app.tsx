@@ -1,11 +1,14 @@
 import styles from './pixi-app.module.scss';
 
-import { Stage, useApp } from "@pixi/react";
+import { useApp } from "@pixi/react";
 import useClassName from '@hooks/use-class-name';
 import { useEffect } from 'react';
 import { PropsWithChildren } from "react";
 import { _ReactPixi } from "@pixi/react";
 import { omit } from 'lodash';
+import dynamic from 'next/dynamic';
+
+const Stage = dynamic(async() => (await import('@pixi/react')).Stage, {ssr: false});
 
 export type PixiAppProps = PropsWithChildren<_ReactPixi.IStage & { paused?: boolean}>
 
@@ -31,6 +34,6 @@ export default function PixiApp(props: PixiAppProps) {
 
     return <Stage {...omit(props, 'paused')} className={className}>
         <AppManager paused={props.paused}/>
-        {props.children}
+        {props.paused || props.children}
     </Stage>;
 }

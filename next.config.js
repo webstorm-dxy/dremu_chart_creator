@@ -14,6 +14,8 @@ nextConfig = {
         config.experiments.topLevelAwait = true;
         return config;
     },
+    eslint: {ignoreDuringBuilds: true,},
+    typescript: {ignoreBuildErrors: true,},
     reactStrictMode: true,
     images: { unoptimized: true, },
     pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']

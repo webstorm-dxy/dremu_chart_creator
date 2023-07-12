@@ -24,7 +24,7 @@ export enum SetStateContextType {
 }
 
 export type StateContext<T> = Context<IStateContext<T>>;
-type ISetAction<T> = Dispatch<SetStateAction<T>>;
+export type ISetAction<T> = Dispatch<SetStateAction<T>>;
 
 export interface IStateContext<T> {
   state: T;

@@ -3,10 +3,10 @@ import Tool from '../../../tools/tool/tool';
 import { Modal, Form, Input, Upload, Button, message } from 'antd';
 import { BaseDirectory, createDir, exists, writeFile } from '@tauri-apps/api/fs';
 import ChartData, { createNewChart, createAecFile } from '@scripts/chart-data/chart-data';
-import { bpmMeasurement } from '@/scripts/utils/bpm-measurement';
 import Bpm from '@/scripts/chart-data/bpm/bpm';
 import Fraction from 'fraction.js';
 
+const bpmMeasurement = (await import('@/scripts/utils/bpm-measurement')).bpmMeasurement;
 
 interface Props {
     readCharts: Function;

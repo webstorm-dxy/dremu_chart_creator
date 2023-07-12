@@ -1,7 +1,6 @@
 import { BaseDirectory, createDir, FileEntry, readDir, removeFile, renameFile } from "@tauri-apps/api/fs";
 import FileList from "../../file-list/file-list";
 import { PLATES } from "@/pages/file-manager";
-import EditorTools from "./tools/editor-tools";
 import { useEffect, useMemo, useState } from "react";
 import Filter from "../../filter/filter";
 import Tools from "../../tools/tools";
@@ -11,7 +10,9 @@ import Icon from "@/components/icon/icon";
 import turnTo, { Pages } from "@/scripts/manager/page";
 import { addRecent, deleteRecent } from "@/scripts/utils/fs/recent-chart";
 import { removeDir } from "@/scripts/utils/fs/remove";
+import dynamic from "next/dynamic";
 
+const EditorTools = dynamic(() => import("./tools/editor-tools"), {ssr: false});
 
 async function openChart(path: string, name: string) {
     await addRecent({ path, name });

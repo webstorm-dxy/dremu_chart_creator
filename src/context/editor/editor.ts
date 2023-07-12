@@ -5,6 +5,7 @@ import TimelineTicker from "@/scripts/timeline/ticker";
 import { TimelineRow } from "@xzdarcy/react-timeline-editor";
 import { HTMLMediaProps } from "react-use/lib/factory/createHTMLMediaHook";
 import { defaultMusicContext } from "./music";
+import { timelineEffects } from "@/components/timeline-effect/effects";
 
 export interface EditorConfigs {
     path: string;
@@ -23,8 +24,11 @@ export interface IEditorContext {
     chart: ChartData | null;
     musicProps: HTMLMediaProps;
     editing: {
+        update: {};
         line: Int|null;
+        selected: Set<string>;
     },
+    clipBoard: TimelineRow[];
     timeline: {
         data: TimelineRow[];
         effects: ITimelineEffects;
@@ -48,10 +52,15 @@ export const defaultEditorContext: IEditorContext = {
     },
     chart: null,
     musicProps: defaultMusicContext.props,
-    editing: {line: null},
+    editing: {
+        update: {},
+        line: null,
+        selected: new Set(),
+    },
+    clipBoard: [],
     timeline: {
         data: [],
-        effects: {},
+        effects: timelineEffects || {},
         engine: new TimelineTicker(),
         beatBar: 4,
         scaleWidth: 160,

@@ -8,6 +8,6 @@ export interface ITabsWindowProps extends TabsProps {
 
 export default function TabsWindow(props: ITabsWindowProps) {
     return <div className={useClassName('pl-2 pr-2', props.divClassName)}>
-        <Tabs {...omit(props, 'divClassName')} className={useClassName('h-full w-full', props.className)}/>
+        <Tabs {...omit(props, 'divClassName')} className={useClassName('h-full w-full overflow-hidden', props.className)}/>
     </div>;
 }

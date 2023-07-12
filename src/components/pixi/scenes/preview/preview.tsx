@@ -4,11 +4,12 @@ import { Container, Text, useTick } from "@pixi/react";
 import { PreviewControls, PreviewOptions, PreviewSceneProps } from './preview.d';
 import { createContext, useEffect, useState } from "react";
 import Background from "./background/background";
-import { chart } from "@components/pages/preview/chart.tem";
-import Line from "./line/line";
 import { CoordinateTransformer } from "@scripts/pixi/scenes/preview/coordinate-transform";
 import configs from '@scripts/manager/config';
+import { useCreation } from "ahooks";
+import dynamic from "next/dynamic";
 
+const Line = dynamic(() => import("./line/line"), {ssr: false});
 
 const previewConfig = configs.get('preview');
 const defaultConfigs: PreviewOptions & PreviewControls = { ...previewConfig, ...configs.get('preview.controls') };
@@ -34,13 +35,12 @@ async function loadAssets(): Promise<boolean> {
 }
 
 export default function PreviewScene(props: PreviewSceneProps) {
-    const { viewWidth = 960, viewHeight = 540 } = props;
+    const { chart, time, viewWidth = 960, viewHeight = 540 } = props;
     const options = { ...defaultConfigs, ...props.options };
-    const transformer = new CoordinateTransformer(viewHeight);
+    const transformer = useCreation(() => new CoordinateTransformer(viewHeight), []);
 
     // states
     const [isLoading, setIsLoading] = useState<boolean>(!loaded);
-    const [time, setTime] = useState<number>(0);
     const [fps, setFps] = useState<number>(0);
     // console.log(options, { ...defaultConfigs, ...props.options });
 
@@ -56,7 +56,6 @@ export default function PreviewScene(props: PreviewSceneProps) {
         ticker.maxFPS = previewConfig.maxFPS || 0;
         ticker.minFPS = previewConfig.minFPS ?? 0;
         setFps(Math.round(ticker.FPS));
-        setTime(0);
     });
 
     return <Scene name="preview" viewWidth={viewWidth} viewHeight={viewHeight}>
@@ -79,6 +78,7 @@ export default function PreviewScene(props: PreviewSceneProps) {
                     scale={[1, -1]}>
                     {chart.data.lines.map(lineData => <Line key={lineData.id}
                         time={time}
+                        bpm={chart.meta.bpm}
                         data={lineData} />)}
                 </Container>}
 

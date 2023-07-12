@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { FractionInputProps } from './fraction-input.d';
 
 
-export default function FractionInput(props: FractionInputProps) {
-    const { value: fraction=new Fraction(0), onChange } = props;
+export function FractionInputForm(props: FractionInputProps) {
+    const { value: fraction = new Fraction(0), onChange } = props;
     const value = fraction.simplify();
 
     const [int, setInt] = useState<number>(Math.floor(value.valueOf()));
@@ -47,13 +47,17 @@ export default function FractionInput(props: FractionInputProps) {
         }
     }
 
-    return <Input.Group {...props}>
-        <Space align='center'>
-            <InputNumber value={int} onChange={v => { change('int', v); }} />
+    return <Input.Group className="max-w-full" {...props}>
+        <Space align='center' size="small" wrap>
+            <InputNumber className="w-14" value={int} onChange={v => { change('int', v); }} />
             <label>:</label>
-            <InputNumber value={numerator} onChange={v => { change('numerator', v); }} />
+            <InputNumber className="w-14" value={numerator} onChange={v => { change('numerator', v); }} />
             <label>/</label>
-            <InputNumber value={denominator} onChange={v => { change('denominator', v); }} />
+            <InputNumber className="w-14" value={denominator} onChange={v => { change('denominator', v); }} />
         </Space>
     </Input.Group>;
+}
+
+export default function FractionInput(props: FractionInputProps) {
+    return <FractionInputForm {...props} key={props.value?.toFraction()}/>;
 }

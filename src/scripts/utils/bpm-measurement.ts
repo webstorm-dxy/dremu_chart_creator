@@ -1,8 +1,6 @@
-let detect;
+"use client";
 
-(async() => {
-    detect = (await import('bpm-detective')).default;
-})();
+const detect = (await import('bpm-detective')).default;
 
 export async function bpmMeasurement(audioData: File | ArrayBuffer | Blob | AudioBuffer): Promise<number> {
     return new Promise(async (resolve, reject) => {
@@ -10,7 +8,7 @@ export async function bpmMeasurement(audioData: File | ArrayBuffer | Blob | Audi
         if (audioData instanceof AudioBuffer) {
             resolve(detect(audioData));
 
-        // 否则先转换为 AudioBuffer 后分析
+            // 否则先转换为 AudioBuffer 后分析
         } else {
             let arrBuf: ArrayBuffer = audioData as ArrayBuffer;
             const ctx = new AudioContext();

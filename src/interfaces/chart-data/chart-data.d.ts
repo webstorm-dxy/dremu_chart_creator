@@ -16,6 +16,7 @@ export interface Meta{
 }
 
 export interface IChartEvent {
+    id: string;
     time: Fraction;
 }
 
@@ -35,7 +36,7 @@ export interface IChartChangeEvent<T> extends IChartEvent {
 export enum ChartNoteEventType {
     Tap,
     Hold,
-    Drag,
+    Darg,
     Flick
 }
 export interface IChartNoteEvent extends IChartEvent {
@@ -52,7 +53,7 @@ export interface IChartHoldNoteEvent extends IChartNoteEvent, IChartSustainEvent
 }
 
 export interface IChartDargNoteEvent extends IChartNoteEvent {
-    type: ChartNoteEventType.Drag;
+    type: ChartNoteEventType.Darg;
 }
 
 

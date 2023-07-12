@@ -33,8 +33,8 @@ export default function LeftBar({ plate, setPlate }: LeftBarProps) {
             <Plate name={PLATES.FILE_SYSTEM} icon={<Icon icon='cloud'></Icon>} activePlate={plate} setPlate={setPlate}>文件系统</Plate>
             <Plate name={PLATES.TOOLBOX} icon={<Icon icon='toolbox'></Icon>} activePlate={plate} setPlate={setPlate}>工具</Plate>
             {/* <Plate name='college' icon={<Icon icon='star' type='solid'></Icon>} activePlate={plate} setPlate={setPlate}>收藏</Plate> */}
-            <Link href='/editor'>editor</Link>
-            <Link href='preview'>preview</Link>
+            {/* <Link href='/editor'>editor</Link>
+            <Link href='preview'>preview</Link> */}
         </div>
     </div>;
 }

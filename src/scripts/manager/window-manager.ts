@@ -20,7 +20,7 @@ export function getWindow(id: string): WebviewWindow | Error | undefined {
     return windows[id];
 }
 
-export async function createWindow(id?: string | null, options?: WindowOptions): Promise<WebviewWindow> {
+export async function createWindow(id?: string | null, options: WindowOptions={}): Promise<WebviewWindow> {
     return new Promise(async(resolve) => {
         if (!init) throw new Error('window manager is not initialized');
         id = id || createMd5();
@@ -28,7 +28,7 @@ export async function createWindow(id?: string | null, options?: WindowOptions):
         if (windows.has(id)) {
             await windows.get(id).close();
         }
-        const view = new WebviewWindow(id, options);
+        const view = new WebviewWindow(id, {fileDropEnabled: false, ...options});
 
         view.once('tauri://' + id, () => { });
 

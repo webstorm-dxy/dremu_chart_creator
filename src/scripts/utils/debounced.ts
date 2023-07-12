@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {DebounceSettings, debounce as _debounce} from 'lodash';
 
 const callbacks = new Map<(...args: any) => any, (...args: any) => any>();

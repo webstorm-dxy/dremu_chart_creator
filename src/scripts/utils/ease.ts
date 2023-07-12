@@ -60,7 +60,11 @@ export default class Ease {
         this.ease = id ?? 0;
         return this.check();
     }
-    count(time: number, values: EaseResultArgs = [0, 1]): number {
+    count(time: number, values: EaseResultArgs=[0, 1]): number {
+        return Ease.count(this.ease, time, values);
+    }
+
+    static count(ease: number, time: number, values: EaseResultArgs = [0, 1]): number {
         /**
          * @param time 时间
          * @param values 起始值与结束值, 起始值则默认时间为0~1
@@ -70,6 +74,8 @@ export default class Ease {
             values = [0, 1, ...values];
         }
 
+        ease ||= 0;
+
         // 将 time 转为百分比，方便计算
         time = ((time - values[0]) / (values[1] - values[0])) || 0;
 
@@ -78,7 +84,7 @@ export default class Ease {
         if (time >= 1) return values[3];
 
         // 获取缓动信息
-        const easeInfo = easeTypes[this.ease];
+        const easeInfo = easeTypes[ease];
 
         let result = easeInfo.countFn ? easeInfo.countFn(time) : Ease.countNormalEase(time, easeInfo.p0, easeInfo.p1);
         result = result * (values[3] - values[2]) + values[2];

@@ -157,3 +157,11 @@ a {
     white-space: nowrap;
   }
 }
+.ant-tabs-content.ant-tabs-content-top {
+  height: 100%;
+  overflow: auto
+}
+
+.timeline-editor-edit-row *{
+  user-select: none;
+}
