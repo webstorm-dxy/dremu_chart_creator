@@ -1,7 +1,7 @@
 import { readTextFile } from '@/scripts/utils/fs/readFile';
 import { BaseDirectory, createDir, writeTextFile } from '@tauri-apps/api/fs';
 import { useMount, useReactive, useSetState } from 'ahooks';
-import { debounce } from 'lodash';
+import { debounce, defaultsDeep } from 'lodash';
 import {
   Component,
   Context,
@@ -78,7 +78,7 @@ export function useSetStateContextValue<T extends Record<string | number | symbo
   const options = useStateContextValueOptions.get(initValue);
   const { type = SetStateContextType.Set, filePath } = options;
 
-  let state, setState;
+  let state: T, setState: ISetAction<T>;
 
   if (type === SetStateContextType.Reactive) {
     state = useReactive<T>(initValue);
@@ -88,18 +88,20 @@ export function useSetStateContextValue<T extends Record<string | number | symbo
 
     if (type === SetStateContextType.LocalSet && filePath) {
       const setStateAction = setState;
-      setState = (prevState: T) => {
-        setStateAction(prevState);
-        saveLocalState(filePath, prevState);
+      setState = (set: T|((prevState: T) => T)) => {
+        const value = set instanceof Function ? set(state) : set;
+        setStateAction(value);
+        saveLocalState(filePath, value);
       };
       useMount(() => {
         readTextFile(filePath, { dir: BaseDirectory.Resource })
           .then(val => {
-            setState(JSON.parse(val));
+            const data = JSON.parse(val);
+            setState(defaultsDeep(data, initValue));
           })
           .catch(async () => {
             await createDir(filePath.slice(0, filePath.lastIndexOf('/')), { dir: BaseDirectory.Resource });
-            saveLocalState(filePath, state);
+            setState(initValue);
           });
       });
     }
@@ -114,8 +116,8 @@ export function useStateContextValue<T>(initValue: T) {
 
 export function useAudioStateContextValue(initValue: HTMLMediaProps
   | ReactElement<HTMLMediaProps, string
-  | ((props: any) => ReactElement<any, any>)
-  | (new (props: any) => Component<any, any, any>)>) :[HTMLMediaElement, IStateContext<HTMLMediaState>] {
+    | ((props: any) => ReactElement<any, any>)
+    | (new (props: any) => Component<any, any, any>)>): [HTMLMediaElement, IStateContext<HTMLMediaState>] {
   const [audio, state, controls] = useAudio(initValue);
 
   const setAction = ((type: keyof HTMLMediaControls) => controls[type]) as unknown as ISetAction<HTMLMediaState>;

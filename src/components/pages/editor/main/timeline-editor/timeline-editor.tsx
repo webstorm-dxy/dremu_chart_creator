@@ -3,7 +3,7 @@ import styles from './timeline-editor.module.scss';
 import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
-import { Timeline, TimelineAction, TimelineRow, TimelineState } from "@xzdarcy/react-timeline-editor";
+import { Timeline, TimelineAction, TimelineEditor as TimelineEditorProps, TimelineRow, TimelineState } from "@xzdarcy/react-timeline-editor";
 import { throttle } from "lodash";
 import { UserConfigContext } from "@/context/user-config";
 import { useContext, useEffect, useMemo, useRef } from "react";
@@ -11,7 +11,7 @@ import useClassName from "@/hooks/use-class-name";
 import { timelineEffectRenders } from '@/components/timeline-effect/effects';
 import { MusicContext } from '@/context/editor/music';
 import Fraction from 'fraction.js';
-import { useDeepCompareEffect, useKeyPress, useMount, useRafInterval, useUpdateEffect } from 'ahooks';
+import { useDeepCompareEffect, useKeyPress, useMount, useRafInterval } from 'ahooks';
 import { ChartNoteEventType, IChartEvent, IChartSustainEvent } from '@/interfaces/chart-data/chart-data.d';
 import Tools from './tools';
 import { createMd5 } from '@/scripts/utils/crypto/md5';
@@ -22,7 +22,7 @@ import { getSelectedData } from '@/scripts/timeline/get-data';
 
 function actionRender(action: TimelineAction, row: TimelineRow) {
     const effectRender = timelineEffectRenders[action.effectId]?.(action, row);
-    if (action.selected) return <SelectedEffect>{effectRender}</SelectedEffect>;
+    if (action.selected) return <SelectedEffect action={action} row={row}>{effectRender}</SelectedEffect>;
     return effectRender;
 }
 
@@ -36,6 +36,7 @@ export default function TimelineEditor() {
     const timeOffset = editorContext.chart?.meta.offset / 1000 || 0;
 
     const timelineRef = useRef<TimelineState>(null);
+    const rowListRef = useRef<HTMLDivElement>(null);
 
     const timelineScaleLength = useMemo(
         () => (editorContext.chart?.meta.bpm.toBeat(musicContext.state.duration).valueOf() || 0) + 20,
@@ -77,7 +78,10 @@ export default function TimelineEditor() {
                             ev = createFn(attrs);
                         }
 
-                        ev.time = new Fraction(action.start);
+
+                        const time = action.start + (action.effectId === 'note-0' || action.effectId === 'note-2' || action.effectId === 'note-3' ? 0.025 : 0);
+                        
+                        ev.time = new Fraction(time);
                         if ((ev as unknown as IChartSustainEvent).endTime) (ev as unknown as IChartSustainEvent).endTime = new Fraction(action.end);
                         return ev;
                     });
@@ -98,7 +102,7 @@ export default function TimelineEditor() {
             });
 
             prev.chart?.setLine(line.id, line);
-
+            timeline.engine.reSetData(prev.timeline.data);
         });
     };
 
@@ -119,11 +123,14 @@ export default function TimelineEditor() {
 
     const onDoubleClickRowHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { row, time }: { row: TimelineRow, time: number }) => {
         const { id } = row;
+        const barLength = 1 / timeline.beatBar;
+        time = editorConfigs.createActionSnip ? Math.round(time / barLength) * barLength : time;
+
         if (id === 'notes')
             return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
                 id: createMd5(),
-                start: time,
-                end: time,
+                start: time - 0.025,
+                end: time + 0.025,
                 flexible: false,
                 effectId: 'note-0',
             }));
@@ -139,21 +146,21 @@ export default function TimelineEditor() {
             return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
                 id: createMd5(),
                 start: time,
-                end: time,
+                end: time + barLength,
                 effectId: 'alpha',
             }));
         if (id === 'moves')
             return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
                 id: createMd5(),
                 start: time,
-                end: time,
+                end: time + barLength,
                 effectId: 'move',
             }));
         if (id === 'rotates')
             return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
                 id: createMd5(),
                 start: time,
-                end: time,
+                end: time + barLength,
                 effectId: 'rotate',
             }));
         if (id === 'timings')
@@ -166,10 +173,24 @@ export default function TimelineEditor() {
             }));
     };
 
+    const onScrollHandler: TimelineEditorProps['onScroll'] = (ev) => {
+        if (!rowListRef.current) return;
+        rowListRef.current.style.marginTop = `-${ev.scrollTop}px`;
+    };
+
+    const updateTime = () => {
+        const tLine = timelineRef.current;
+        const musicRef = musicContext.ref.current;
+        if (tLine && musicRef) {
+            const bpm = editorContext.chart?.meta.bpm;
+            editorContext.timeline.engine.setBeat(bpm?.toBeat(musicRef.currentTime + timeOffset) || 0, true, musicContext.state.paused);
+            setScrollLeft(tLine.getTime());
+        }
+    };
+
     useMount(() => {
         editorContext.timeline.engine.on('beforeSetTime', ev => {
             setBeat(ev.time);
-            // return false;
         });
     });
 
@@ -193,16 +214,6 @@ export default function TimelineEditor() {
         }
     }, [timelineRef.current]);
 
-    const updateTime = () => {
-        const tLine = timelineRef.current;
-        const musicRef = musicContext.ref.current;
-        if (tLine && musicRef) {
-            const bpm = editorContext.chart?.meta.bpm;
-            editorContext.timeline.engine.setBeat(bpm?.toBeat(musicRef.currentTime + timeOffset) || 0, true);
-            setScrollLeft(tLine.getTime());
-        }
-    };
-
     useEffect(updateTime, [timelineRef.current]);
 
     useRafInterval(updateTime, 16.667);
@@ -220,8 +231,8 @@ export default function TimelineEditor() {
                     actions: line.notes.map((note) => {
                         return {
                             id: note.id,
-                            start: note.time.valueOf(),
-                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf(),
+                            start: note.type === ChartNoteEventType.Hold ? note.time.valueOf() : note.time.valueOf() - 0.025,
+                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf() + 0.025,
                             effectId: 'note-' + note.type,
                             selected: editorContext.editing.selected.has(note.id),
                             flexible: note.type === ChartNoteEventType.Hold
@@ -319,20 +330,27 @@ export default function TimelineEditor() {
         paste(setEditorContext, editorContext.timeline.engine.getTime());
     }, 1000), { exactMatch: true });
 
-    // console.log(editorContext.timeline.data, editorContext.editing.selected);
-
-    return <div className="w-full h-1/2 relative border-t-2 border-gray-200 overflow-hidden">
+    return <div className="w-full h-1/2 relative border-t-2 border-gray-300 overflow-hidden">
         <Tools />
-        <div className={useClassName("flex", styles['timeline-box'])}>
+        <div className={useClassName("flex bg-gray-100", styles['timeline-box'])}>
+            <div className='w-24 shadow'>
+                <div className='h-8 mb-2 text-center leading-8 shadow'>轨道</div>
+                <div className='h-full overflow-hidden relative'>
+                    <div ref={rowListRef} className={useClassName('h-full', styles['row-list'])}>
+                        {timeline.data.map(row => <div key={row.id} className="flex text-clip justify-end items-center pl-2 pr-2 transition-colors rounded-sm shadow-sm hover:bg-gray-200" style={{ height: row.rowHeight || timeline.rowHeight }}>{row.id}</div>)}
+                    </div>
+                </div>
+            </div>
             <Timeline
-                key={timeline.beatBar}
+                key={timeline.beatBar + timeline.rowHeight}
                 ref={timelineRef}
+                startLeft={32}
                 editorData={editorContext.timeline.data}
                 effects={editorContext.timeline.effects}
                 onChange={onChangeHandler}
                 style={{ width: '100%', height: '100%' }}
                 engine={editorContext.timeline.engine}
-                rowHeight={32}
+                rowHeight={timeline.rowHeight}
                 getActionRender={actionRender}
                 autoScroll={true}
                 scale={1}
@@ -340,10 +358,11 @@ export default function TimelineEditor() {
                 scaleWidth={timeline.scaleWidth}
                 minScaleCount={timelineScaleLength}
                 maxScaleCount={Number.MAX_SAFE_INTEGER}
-                gridSnap={editorConfigs.snip.gird}
-                dragLine={editorConfigs.snip.dragline}
+                gridSnap={timeline.snip.gird}
+                dragLine={timeline.snip.dragline}
                 onDoubleClickRow={onDoubleClickRowHandler}
                 onClickAction={onClickActionHandler}
+                onScroll={onScrollHandler}
             />
         </div>
     </div>;

@@ -1,7 +1,6 @@
 import styles from '@styles/Editor.module.scss';
 
 import Head from "next/head";
-import Header from '@components/pages/editor/header/header';
 import Main from '@components/pages/editor/main/main';
 import { BaseDirectory, createDir, exists, readTextFile } from '@tauri-apps/api/fs';
 import { Modal, Spin } from 'antd';
@@ -18,6 +17,9 @@ import { useInterval, useKeyPress, useMount } from 'ahooks';
 import { useEffect, useMemo } from 'react';
 import { UserConfigContext } from '@/context/user-config';
 import { throttle } from 'lodash';
+import dynamic from 'next/dynamic';
+
+const Header = dynamic(() => import('@components/pages/editor/header/header'), {ssr: false});
 
 export default function Editor() {
     const [userConfigContext,] = useStateContext(UserConfigContext);
@@ -71,11 +73,12 @@ export default function Editor() {
             const chart = await parseAecChart(aecChart);
             setRecordState(editorContextValue.setAction, prev => prev.chart = chart);
 
-            const music = new Blob([await getAudio(chart.getId())], { type: 'audio/ogg' });
+            const musicContent = await getAudio(chart.getId());
+            const music = new Blob([musicContent], { type: 'audio/ogg' });
 
             const musicUrl = URL.createObjectURL(music);
 
-            setRecordState(editorContextValue.setAction, prev => prev.musicProps = { src: musicUrl, id: 'music' });
+            setRecordState(editorContextValue.setAction, prev => prev.musicProps = { src: musicUrl, id: 'music', preload: 'auto' });
         });
     });
 
@@ -89,6 +92,10 @@ export default function Editor() {
     }, 3000);
 
     useInterval(saveChart, userConfigContext.editor.autoSaveDelay || 60000);
+
+    useKeyPress('space', throttle(() => {
+        musicState.paused ? musicControls.play() : musicControls.pause();
+    }, 100), {exactMatch: true});
 
     useKeyPress('ctrl.s', saveChart, {exactMatch: true});
 

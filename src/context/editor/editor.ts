@@ -9,14 +9,11 @@ import { timelineEffects } from "@/components/timeline-effect/effects";
 
 export interface EditorConfigs {
     path: string;
-    snip: {
-        gird: boolean;
-        dragline: boolean;
-    };
     preview: {
         paused: boolean;
         scale: number;
-    }
+    },
+    createActionSnip: boolean,
 }
 
 export interface IEditorContext {
@@ -25,7 +22,7 @@ export interface IEditorContext {
     musicProps: HTMLMediaProps;
     editing: {
         update: {};
-        line: Int|null;
+        line: Int | null;
         selected: Set<string>;
     },
     clipBoard: TimelineRow[];
@@ -35,20 +32,22 @@ export interface IEditorContext {
         engine: TimelineTicker;
         beatBar: number;
         scaleWidth: number;
+        rowHeight: number;
+        snip: {
+            gird: boolean;
+            dragline: boolean;
+        };
     }
 }
 
 export const defaultEditorContext: IEditorContext = {
     editorConfigs: {
         path: '',
-        snip: {
-            gird: true,
-            dragline: true
-        },
         preview: {
             paused: true,
             scale: 1
-        }
+        },
+        createActionSnip: true,
     },
     chart: null,
     musicProps: defaultMusicContext.props,
@@ -64,6 +63,11 @@ export const defaultEditorContext: IEditorContext = {
         engine: new TimelineTicker(),
         beatBar: 4,
         scaleWidth: 160,
+        rowHeight: 32,
+        snip: {
+            gird: true,
+            dragline: true
+        }
     }
 };
 

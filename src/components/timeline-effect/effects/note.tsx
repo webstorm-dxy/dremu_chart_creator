@@ -1,7 +1,5 @@
 import { TimelineAction, TimelineRow } from "@xzdarcy/react-timeline-editor";
-import { useSize } from "ahooks";
 import Image from "next/image";
-import { useRef } from "react";
 import EventEffect from "./event/event";
 
 export const NoteTap = (action: TimelineAction, row: TimelineRow) => {
@@ -17,10 +15,6 @@ export const NoteDarg = (action: TimelineAction, row: TimelineRow) => {
 };
 
 export const NoteFlick = (action: TimelineAction, row: TimelineRow) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    const { height = 0 } = useSize(containerRef) || {};
-
     return <EventEffect>{
         (width, height) => <Image style={{ width: height + 'px' }} src="/image/note/flick.png" alt="note-flick" width={170} height={218} />
     }</EventEffect>;

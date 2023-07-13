@@ -3,6 +3,7 @@ import { setRecordState } from "@/hooks/set-record-state";
 import { ISetAction } from "@/hooks/use-state-context";
 import { TimelineRow } from "@xzdarcy/react-timeline-editor";
 import { createMd5 } from "../utils/crypto/md5";
+import { cloneDeep } from "lodash";
 
 
 export function deleteByActionId(setAction: ISetAction<IEditorContext>, ids: string[]) {
@@ -50,7 +51,7 @@ export function copy(setAction: ISetAction<IEditorContext>, data: TimelineRow[])
         row.actions.forEach(action => {
             action.start -= startTime;
             action.end -= startTime;
-            action.id = createMd5();
+            action.id = undefined;
             action.selected = false;
         });
     });
@@ -61,18 +62,18 @@ export function copy(setAction: ISetAction<IEditorContext>, data: TimelineRow[])
 export function paste(setAction: ISetAction<IEditorContext>, startTime: number) {
     setRecordState(setAction, prev => {
         const data = prev.timeline.data;
-        const pasteData = prev.clipBoard;
+        const pasteData = cloneDeep(prev.clipBoard);
         pasteData.forEach(pasteRow => {
             const row = data.find(row => row.id === pasteRow.id);
 
             if(!row) return data.push(pasteRow);
 
             row.actions.push(...pasteRow.actions.map(action => {
+                action.id = createMd5();
                 action.start += startTime;
                 action.end += startTime;
                 return action;
             }));
-            // row.actions.sort()
         });
     });
 }

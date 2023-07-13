@@ -40,6 +40,7 @@ export function disconnectPreview(force: boolean=false): boolean {
     return true;
 }
 
+
 export function fetchToPreview(startTime: number, chartPath: string, audioPath: string): Promise<boolean> {
     const isWaiting = waiting;
     return new Promise<boolean>(async (resolve) => {

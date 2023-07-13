@@ -12,7 +12,7 @@ export const Timing = (action: TimelineAction, row: TimelineRow) => {
     return <EventEffect>{
         (width, height) => {
             const radius = Math.max(height - 12, 16);
-            return <div className="bg-gray-100 rounded-md border-2 border-gray-300 text-center w-fit" style={{ minWidth: radius, height: radius }}>
+            return <div className="flex items-center justify-center bg-gray-100 rounded-md border-2 border-gray-300 w-fit" style={{ minWidth: radius, height: radius }}>
                 {line.timings.find(ev => ev.id === action.id)?.speedRatio}
             </div>;
         }

@@ -104,6 +104,7 @@ export default class ChartData {
         return JSON.stringify(this);
     }
     exportJson() {
+        const offset = this.meta.offset;
         const data = cloneDeep(this.data);
 
         (data as any).notes = [];
@@ -176,7 +177,7 @@ export default class ChartData {
 
         return JSON.stringify(data, (key: string, value: unknown) => {
             if (key === 'description') return;
-            if (value instanceof Fraction) return this.meta.bpm.toTime(value);
+            if (value instanceof Fraction) return this.meta.bpm.toTime(value) + offset;
             return value;
         });
     }
@@ -195,9 +196,9 @@ export default class ChartData {
         return writeFile(/\.aec$/i.test(path) ? path : path + '.aec', data, options);
     }
 
-    saveJson(path: string, options: FsOptions = { dir: BaseDirectory.Resource }) {
+    async saveJson(path: string, options: FsOptions = { dir: BaseDirectory.Resource }) {
         const data = this.exportJson();
-
+        
         return writeFile(/\.json$/i.test(path) ? path : path + '.aec', data, options);
     }
 

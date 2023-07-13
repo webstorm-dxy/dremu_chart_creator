@@ -3,14 +3,29 @@ import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
 import { ChartFlickEventDirections, ChartNoteEventType, IChartFlickNoteEvent, IChartHoldNoteEvent, IChartNoteEvents, IChartSustainEvent } from "@/interfaces/chart-data/chart-data.d";
-import { Form, InputNumber, Select, SelectProps } from "antd";
+import { Form, InputNumber, Select, SelectProps, TooltipProps } from "antd";
 import Fraction from "fraction.js";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
 export interface INoteTypeSelect extends SelectProps {
     label?: string;
+    tooltip?: TooltipProps;
     event: IChartNoteEvents;
 }
+
+const attrKeyIndex = ['id', 'time', 'endTime', 'type', 'flag', 'position', 'speedRadio', 'from', 'to', 'ease'];
+const labelOfKey: Record<string|number, string> = {
+    id: 'ID',
+    time: '起始时间',
+    endTime: '结束时间',
+    type: '类型',
+    position: '位置',
+    speedRadio: '流速',
+    from: '初始值',
+    to: '结束值',
+    ease: '缓动'
+};
+const helpOfKey: Record<string|number, string> = {position: '相对于线锚点的X坐标偏移量'};
 
 export function NoteTypeSelect(props: INoteTypeSelect) {
     const { event, onChange } = props;
@@ -29,7 +44,7 @@ export function NoteTypeSelect(props: INoteTypeSelect) {
         return res;
     }, [ChartNoteEventType]);
 
-    return <Form.Item label={props.label}>
+    return <Form.Item required label={props.label} tooltip={props.tooltip}>
         <Select options={noteTypeOptions} optionLabelProp="label" {...props} onChange={(val, options) => {
             switch (val) {
                 case ChartNoteEventType.Tap:
@@ -75,6 +90,7 @@ export default function AttrEditor() {
 
         function onChangeHandler<T extends Function>(handler?: T): T {
             return ((...args: unknown[]) => {
+                if(!args[0]) return;
                 handler?.(...args);
                 console.log(event);
                 setRecordState(setEditorContext, prev => prev.editing.update = {});
@@ -82,34 +98,37 @@ export default function AttrEditor() {
             }) as unknown as T;
         }
 
-        function getFormRender(id: string, key: string, value: unknown): ReactNode {
-            if (key === 'id') return <Form.Item key={id + key} label={key}>{value as string}</Form.Item>;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function getFormRender(data: Record<string | number | symbol, any>, key: string|number, options: { id?: string, label?: string, description?: string, value?: unknown } = {}): ReactNode {
+            const value = options.value || data[key];
+            const label = options.label || key.toString();
+            const id = options.id || key;
+            const tooltip = options.description && {title: options.description};
+            if (key === 'id') return <Form.Item required key={id} label={label} tooltip={tooltip}>{value as string}</Form.Item>;
 
-            if (value instanceof Fraction) return <Form.Item key={id + key} label={key}>
-                <FractionInput value={value} onChange={onChangeHandler(val => event[key] = val)} />
+            if (value instanceof Fraction) return <Form.Item required key={id} label={label} tooltip={tooltip}>
+                <FractionInput value={value} onChange={onChangeHandler(val => { if(key !== 'endTime' || val.compare(data.time) >= 0) data[key] = val; })} />
             </Form.Item>;
 
-            if (value instanceof Array) return <Form.Item key={id + key} label={key}>{
+            if (value instanceof Array) return <Form.Item required key={id} label={label} tooltip={tooltip}>{
                 value.length <= 3
-                    ? value.map((val, i) => getFormRender(id + key, i === 0 ? 'x' : i === 1 ? 'y' : 'z', val))
-                    : value.map((val, i) => getFormRender(id + key, i.toString(), val))
+                    ? value.map((val, i) => getFormRender(data[key], i, {id: `${id} ${i}`, label: i === 0 ? 'x' : i === 1 ? 'y' : 'z', value:val}))
+                    : value.map((val, i) => getFormRender(data[key], i, {id: `${id} ${i}`, label: i.toString(), value:val}))
             }</Form.Item>;
 
-            if (type === 'notes' && key === 'type') return <NoteTypeSelect key={id + key} label={key} event={event as IChartNoteEvents} onChange={onChangeHandler()} value={value} />;
+            if (type === 'notes' && key === 'type') return <NoteTypeSelect key={id} label={label} tooltip={tooltip} event={data as IChartNoteEvents} onChange={onChangeHandler()} value={value} />;
 
-            if (key === 'ease') return <Form.Item key={id + key} label={key}>
-                <InputNumber min={0} max={30} value={Number(value) || 0} onChange={onChangeHandler(val => event[key] = Number(val))} />
+            if (key === 'ease') return <Form.Item required key={id} label={label} tooltip={tooltip}>
+                <InputNumber min={0} max={30} value={Number(value) || 0} onChange={onChangeHandler(val => data[key] = Number(val))} />
             </Form.Item>;
 
-            if (typeof value === 'number') return <Form.Item key={id + key} label={key}>
-                <InputNumber value={Number(value) || 0} onChange={onChangeHandler(val => event[key] = Number(val))} />
+            if (typeof value === 'number') return <Form.Item required key={id} label={label} tooltip={tooltip}>
+                <InputNumber value={Number(value) || 0} onChange={onChangeHandler(val => data[key] = Number(val))} />
             </Form.Item>;
         }
 
-        return Object.keys(event).sort().map<ReactNode>(key => {
-            const value = event[key];
-
-            return getFormRender(event.id, key, value);
+        return Object.keys(event).sort((a, b) => Math.abs(attrKeyIndex.indexOf(a)) - Math.abs(attrKeyIndex.indexOf(b))).map<ReactNode>((key, i) => {
+            return getFormRender(event, key, { id: `${event.id} ${key} ${i}`, label: labelOfKey[key], description: helpOfKey[key] });
         });
     }, [id, update]);
 

@@ -7,20 +7,20 @@ import { useState } from "react";
 import LineManager from "./line-manager";
 
 export default function MaterialManager() {
-    const [editorValue, setEditorValue] = useStateContext(EditorContext);
+    const [editorValue,] = useStateContext(EditorContext);
     const {chart} = editorValue;
-    const [tabsKey, setTabsKey] = useState<string>();
+    const [tabsKey, setTabsKey] = useState<string>('line');
 
     const tabItems: TabsProps['items'] = [
-        {
-            key: 'bpm',
-            label: 'BPM',
-            children: <BPMEditor bpm={chart?.meta.bpm}/>
-        },
         {
             key: 'line',
             label: '线',
             children: <LineManager />
+        },
+        {
+            key: 'bpm',
+            label: 'BPM',
+            children: <BPMEditor bpm={chart?.meta.bpm}/>
         }
     ];
     

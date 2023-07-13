@@ -22,7 +22,7 @@ export default function Main() {
         <mainContext.Provider value={{tool, setTool}}>
             {/* <Toolbar tool={tool}></Toolbar> */}
             <ContentBar />
-            <div className={styles['main-view']}>
+            <div className="w-4/5">
                 <PreviewView />
                 <TimelineEditor/>
             </div>

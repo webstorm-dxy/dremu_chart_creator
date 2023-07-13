@@ -1,3 +1,11 @@
 .timeline-box {
     height: calc(100% - 4rem);
+
+    .row-list:empty::before {
+        content: "无轨道";
+        position: absolute;
+        top: calc(50% - 32px);
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 }

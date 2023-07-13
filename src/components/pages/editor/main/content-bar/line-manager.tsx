@@ -72,6 +72,12 @@ export default function LineManager() {
         });
     }, 500);
 
+    const removeLineHandler = throttle(() => {
+        setRecordState(setEditorContext, prev => {
+            prev.chart.removeLine(selectedLine.id);
+        });
+    }, 500);
+
     function EditLineForm({ line }: { line: IChartLine }) {
         const set = (setAction: (prev: IChartLine) => void) => setRecordState(setEditorContext, prevState => setAction(prevState.chart.getLine(line.id)));
 
@@ -102,8 +108,11 @@ export default function LineManager() {
             <Popover trigger='click' title="编辑" destroyTooltipOnHide content={<EditLineForm line={selectedLine} />}>
                 <Button>编辑</Button>
             </Popover>
+            <Popconfirm title="删除" destroyTooltipOnHide onConfirm={removeLineHandler}>
+                <Button>删除</Button>
+            </Popconfirm>
         </Button.Group>
-        {/* <Input></Input> */}
+        
         <Tree treeData={lineTreeData}
             showLine
             showIcon
