@@ -43,6 +43,7 @@ if (!needUpgrades.version && !needUpgrades.major && !needUpgrades.minor && !need
 
     packageJson.version = version;
     tauriConfigJson.package.version = version;
+    tauriConfigJson.tauri.windows[0].title = `Re: AstEdit - v${version}`;
 
     writeFile(packageFilePath, JSON.stringify(packageJson, null, 4), { encoding: 'utf-8' });
     writeFile(tauriConfigFilePath, JSON.stringify(tauriConfigJson, null, 4), { encoding: 'utf-8' });

@@ -14,7 +14,7 @@ export function KeySoundSetting({ data, setAction }: { data: Record<string, ISet
 
     function getFormItem(key: string) {
         if (!data) return null;
-        const src = data[key].src;
+        const src = data[key]?.src;
         return <Form.Item label={key}><Space>
             <Switch checked={!!data[key]} checkedChildren="启用" unCheckedChildren="禁用" onChange={c => setRecordState(setAction, prev => c ? prev.editor.keySound[key] = { src: `/audio/key-sound/0.wav` } : prev.editor.keySound[key] = null)} />
             {!!data[key] && <Form.Item rules={[{ type: 'number', min: 0, max: 13, pattern: /^-?\d+$/ }]}>

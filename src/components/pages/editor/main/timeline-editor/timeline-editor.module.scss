@@ -9,3 +9,13 @@
         transform: translate(-50%, -50%);
     }
 }
+
+.timeline-notes-row {
+    >div {
+        visibility: hidden;
+
+        >* {
+            visibility: visible;
+        }
+    }
+}

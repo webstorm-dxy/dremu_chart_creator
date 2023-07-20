@@ -153,8 +153,14 @@ a {
   overflow: auto
 }
 
-.timeline-editor-edit-row * {
-  user-select: none;
+.timeline-editor-edit-row {
+  >.timeline-editor-action-effect-note-1 {
+    visibility: visible !important;
+  }
+
+  * {
+    user-select: none;
+  }
 }
 
 .timeline-editor-time-area {
@@ -167,4 +173,9 @@ a {
       color: #000a
     }
   }
+
+}
+
+.timeline-editor-cursor {
+  pointer-events: none;
 }

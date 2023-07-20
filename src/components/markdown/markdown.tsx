@@ -4,7 +4,7 @@ import Image from 'next/image';
 import useClassName from '@/hooks/use-class-name';
 import { MDXProvider } from '@mdx-js/react';
 import { MDXProps } from './markdown.d';
-import { Children, PropsWithChildren, ReactElement, useMemo } from 'react';
+import { PropsWithChildren, ReactElement, useMemo } from 'react';
 import useParent from '@/hooks/use-parent';
 
 
@@ -46,7 +46,7 @@ const components = {
     h4: Markdown.Heading.h4,
     h5: Markdown.Heading.h5,
     h6: Markdown.Heading.h6,
-    img: Markdown.Image,
+    // img: Markdown.Image,
     p: Markdown.P,
     a: Markdown.A,
     code: Markdown.Code,

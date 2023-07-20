@@ -3,7 +3,6 @@ import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
 import { IChartLine } from "@/interfaces/chart-data/chart-data";
-import { createLine } from "@/scripts/chart-data/chart-data";
 import { Button, Form, Input, InputNumber, Popconfirm, Popover, Tree, TreeProps, Typography, message } from "antd";
 import { throttle } from "lodash";
 import { useState } from "react";
@@ -73,9 +72,17 @@ export default function LineManager() {
     }, 500);
 
     const removeLineHandler = throttle(() => {
+        if(!selectedLine) return;
+        if(editorContext.editing.line === selectedLine.id) {
+            message.warning('编辑状态的线不可删除');
+            return;
+        }
+
         setRecordState(setEditorContext, prev => {
             prev.chart.removeLine(selectedLine.id);
         });
+
+        setSelectedLine(null);
     }, 500);
 
     function EditLineForm({ line }: { line: IChartLine }) {
@@ -106,10 +113,10 @@ export default function LineManager() {
                 <Button>添加</Button>
             </Popconfirm>
             <Popover trigger='click' title="编辑" destroyTooltipOnHide content={<EditLineForm line={selectedLine} />}>
-                <Button>编辑</Button>
+                <Button disabled={!selectedLine}>编辑</Button>
             </Popover>
-            <Popconfirm title="删除" destroyTooltipOnHide onConfirm={removeLineHandler}>
-                <Button>删除</Button>
+            <Popconfirm title="删除" destroyTooltipOnHide disabled={!selectedLine} onConfirm={removeLineHandler}>
+                <Button disabled={!selectedLine}>删除</Button>
             </Popconfirm>
         </Button.Group>
         

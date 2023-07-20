@@ -2,13 +2,13 @@ import '@styles/globals.scss';
 import '@styles/icons/all.min.css';
 
 import type { AppProps } from 'next/app';
-import { MDX } from '@/components/markdow/markdown';
+import { MDX } from '@/components/markdown/markdown';
 import { App as AntdApp } from 'antd';
 import { AppContext, defaultAppContext } from '@/context/app';
 import { SetStateContextType, useSetStateContextValue } from '@/hooks/use-state-context';
 import { UserConfigContext, defaultUserConfigContext } from '@/context/user-config';
 import NoSsr from '@/components/no-ssr/no-ssr';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMount } from 'ahooks';
 import dayjs from 'dayjs';
 

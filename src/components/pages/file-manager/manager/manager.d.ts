@@ -1,5 +1,6 @@
-import {PLATES} from '@pages/file-manager';
+import {PLATES} from '@/pages/file-manager';
 
 export interface ManagerProps {
-    plate: PLATES
+    plate: PLATES,
+    props: Record<string, any>;
 }

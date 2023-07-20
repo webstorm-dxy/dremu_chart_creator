@@ -48,7 +48,7 @@ export default class ChartData {
         if (parent)
             typeof parent === 'number' ? this.getLine(parent)?.children.push(newLine) : parent.children.push(newLine);
         else this.data.lines.push(newLine);
-
+        
         return newLine;
     }
 
@@ -305,7 +305,7 @@ export namespace EventCreator {
     }
 
     export function createChangeEvent<T>(defaultValue: T, attrs: Partial<IChartChangeEvent<T>> = {}): IChartChangeEvent<T> {
-        return assign(createEvent(), { from: defaultValue, to: defaultValue }, attrs);
+        return assign(createEvent(), { from: defaultValue, to: cloneDeep(defaultValue) }, attrs);
     }
 
     export function createNoteEvent(attrs: Partial<IChartNoteEvent> = {}): IChartNoteEvent {

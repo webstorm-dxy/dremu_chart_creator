@@ -10,6 +10,8 @@ export function playKeySound(key: string) {
     
     const sound = keySounds.get(key);
 
+    if(!sound) return;
+
     if (!sound.paused) {
         const newSound = sound.cloneNode() as HTMLAudioElement;
         newSound.id = '';

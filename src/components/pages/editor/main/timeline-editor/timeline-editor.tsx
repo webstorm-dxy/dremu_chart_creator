@@ -80,7 +80,7 @@ export default function TimelineEditor() {
 
 
                         const time = action.start + (action.effectId === 'note-0' || action.effectId === 'note-2' || action.effectId === 'note-3' ? 0.025 : 0);
-                        
+
                         ev.time = new Fraction(time);
                         if ((ev as unknown as IChartSustainEvent).endTime) (ev as unknown as IChartSustainEvent).endTime = new Fraction(action.end);
                         return ev;
@@ -228,6 +228,7 @@ export default function TimelineEditor() {
             prev.timeline.data = [
                 {
                     id: 'notes',
+                    classNames: [styles['timeline-notes-row']],
                     actions: line.notes.map((note) => {
                         return {
                             id: note.id,
@@ -327,7 +328,8 @@ export default function TimelineEditor() {
     }, 1000), { exactMatch: true });
 
     useKeyPress('ctrl.v', throttle(() => {
-        paste(setEditorContext, editorContext.timeline.engine.getTime());
+        paste(setEditorContext, editorContext.timeline.engine.getTime(), editorContext.chart, editorContext.chart.getLine(editorContext.editing.line));
+        setRecordState(setEditorContext, prev => prev.editing.update = {});
     }, 1000), { exactMatch: true });
 
     return <div className="w-full h-1/2 relative border-t-2 border-gray-300 overflow-hidden">

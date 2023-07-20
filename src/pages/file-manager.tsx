@@ -11,6 +11,7 @@ export enum PLATES {
     RECENTLY = 'recently',
     FILE_SYSTEM = 'fileSystem',
     TOOLBOX = 'toolbox',
+    DOC = 'doc'
 }
 
 
@@ -25,7 +26,7 @@ export default function FileManager() {
             </Head>
             <div className={styles.main}>
                 <LeftBar plate={plate} setPlate={setPlate}></LeftBar>
-                <Manager plate={plate}></Manager>
+                <Manager plate={plate} props={{ disabledOpenInNewWindow: false }} />
             </div>
         </>
     );
