@@ -10,8 +10,7 @@ interface ILoginOptions {
     password?: string;
 }
 
-const logined: Readonly<boolean> = false;
-
+let logined: Readonly<boolean> = false;
 
 function loginFunc(type: "token" | "password", options: ILoginOptions = {}): Promise<boolean> {
     return new Promise(async (resolve) => {
@@ -26,9 +25,10 @@ function loginFunc(type: "token" | "password", options: ILoginOptions = {}): Pro
         if (!res) return resolve(false);
         if (!await checkToken(res)) return resolve(false);
 
+        logined = true;
+        resolve(true);
         // 成功则跳转页面
         turnToHome();
-        resolve(true);
     });
 }
 
@@ -46,6 +46,8 @@ function loginByToken(): Promise<false | string> {
         const token = await getToken();
 
         if (!token) return resolve(false);
+
+        logined = true;
         resolve(token);
     });
 }
@@ -56,13 +58,13 @@ function loginByPassword(username: string, password: string) {
 
         const passwordMd5 = md5(password).toString();
         const macAddressMd5 = await getMacAddress();
-        
+
         // 请求登录
         const res = await fetch(globalConfigs.api.login, {
             mode: 'cors',
             method: 'POST',
             cache: 'no-cache',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 username,
                 passwordMd5,
@@ -75,12 +77,13 @@ function loginByPassword(username: string, password: string) {
         if (!res) return resolve(false);
         if (!await saveToken(res)) return resolve(false);
 
+        if (res) logined = true;
         resolve(res);
     });
 }
 
 function turnToHome() {
-    turnTo(Pages.FILE_MANAGER);
+    turnTo(Pages.DASH_BOARD);
 }
 
 export default login;

@@ -19,6 +19,7 @@ import { EventCreator } from '@/scripts/chart-data/chart-data';
 import SelectedEffect from '@/components/timeline-effect/effects/selected-effect/selected-effect';
 import { copy, deleteSelected, paste } from '@/scripts/timeline/clip-board';
 import { getSelectedData } from '@/scripts/timeline/get-data';
+import range from '@/scripts/utils/range';
 
 function actionRender(action: TimelineAction, row: TimelineRow) {
     const effectRender = timelineEffectRenders[action.effectId]?.(action, row);
@@ -78,10 +79,7 @@ export default function TimelineEditor() {
                             ev = createFn(attrs);
                         }
 
-
-                        const time = action.start + (action.effectId === 'note-0' || action.effectId === 'note-2' || action.effectId === 'note-3' ? 0.025 : 0);
-
-                        ev.time = new Fraction(time);
+                        ev.time = new Fraction(action.start);
                         if ((ev as unknown as IChartSustainEvent).endTime) (ev as unknown as IChartSustainEvent).endTime = new Fraction(action.end);
                         return ev;
                     });
@@ -129,8 +127,8 @@ export default function TimelineEditor() {
         if (id === 'notes')
             return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
                 id: createMd5(),
-                start: time - 0.025,
-                end: time + 0.025,
+                start: time,
+                end: time + 0.05,
                 flexible: false,
                 effectId: 'note-0',
             }));
@@ -201,9 +199,12 @@ export default function TimelineEditor() {
 
             const wheelEvent = throttle((ev: WheelEvent) => {
                 const offset = (ev.deltaY > 0 ? 0.5 : -0.5)
-                    * (userConfigContext.editor.wheelInversion ? -1 : 1)
-                    * (ev.altKey ? 2 : 1);
-                setBeat(Math.max(tLine.getTime() + offset, 0));
+                    * (ev.altKey ? 2 : 1) // 转为方向
+                    * (userConfigContext.editor.wheelInversion ? -1 : 1) // 反转方向
+                    * (ev.shiftKey ? 2 : 1); // 加速
+                ev.altKey
+                    ? setRecordState(setEditorContext, prev => prev.timeline.scaleWidth = range(timeline.scaleWidth + -40 * offset, 40, 640))
+                    : setBeat(Math.max(tLine.getTime() + offset, 0));
             }, 100);
 
             timeArea.addEventListener('wheel', wheelEvent);
@@ -232,8 +233,8 @@ export default function TimelineEditor() {
                     actions: line.notes.map((note) => {
                         return {
                             id: note.id,
-                            start: note.type === ChartNoteEventType.Hold ? note.time.valueOf() : note.time.valueOf() - 0.025,
-                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf() + 0.025,
+                            start: note.type === ChartNoteEventType.Hold ? note.time.valueOf() : note.time.valueOf(),
+                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf() + 0.05,
                             effectId: 'note-' + note.type,
                             selected: editorContext.editing.selected.has(note.id),
                             flexible: note.type === ChartNoteEventType.Hold

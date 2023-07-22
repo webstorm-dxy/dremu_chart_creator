@@ -37,7 +37,7 @@ export default class ChartData {
 
     getLines = () => getLines(this.data.lines);
 
-    addLine(parent?: IChartLine | Int, attrs?: IChartLine|Omit<IChartLine, 'id'>): IChartLine {
+    addLine(parent?: IChartLine | Int, attrs?: IChartLine | Omit<IChartLine, 'id'>): IChartLine {
         const lines = this.getLines().sort((a, b) => a.id - b.id);
         let id = lines.length;
         for (let i = 0; i < lines.length; i++) {
@@ -48,7 +48,7 @@ export default class ChartData {
         if (parent)
             typeof parent === 'number' ? this.getLine(parent)?.children.push(newLine) : parent.children.push(newLine);
         else this.data.lines.push(newLine);
-        
+
         return newLine;
     }
 
@@ -104,7 +104,7 @@ export default class ChartData {
         return JSON.stringify(this);
     }
     exportJson() {
-        const offset = this.meta.offset;
+        const offset = this.meta.offset || 0;
         const data = cloneDeep(this.data);
 
         (data as any).notes = [];
@@ -114,7 +114,7 @@ export default class ChartData {
             return lines.map(line => {
                 if (line.dots.length < 2) {
                     console.error('Error: Less than 2 dots in line' + line.id);
-                    notification.error({ message: "错误", description: `Line ${line.id} 的Dot事件少于2个`, duration: null });
+                    notification.error({ message: "错误", description: `Line ${line.id} 的 Dot 事件少于2个`, duration: 10 });
                 }
 
                 (line as any).startX = parent ? (parent as any).startX + line.start[0] : line.start[0];
@@ -126,19 +126,18 @@ export default class ChartData {
                         notification.warning({ message: "错误", description: `Note ${ev.id} 不在Dot事件范围内, 已被忽略\nat Line ${line.id}`, duration: null });
                         return;
                     }
-                    ev.id = undefined;
                     (ev as any).lineId = line.id;
                     (ev as any).tapTime = ev.time;
                     ev.time = undefined;
-                    (ev as any).duration &&= ((ev as IChartSustainEvent).endTime as Fraction).sub(ev.time);
+                    (ev as any).duration = ((ev as IChartSustainEvent).endTime as Fraction)?.sub(ev.time) || undefined;
                     (ev as IChartSustainEvent).endTime = undefined;
 
                     (data as any).notes.push(ev);
                 });
                 line.notes = undefined;
                 line.moves = line.moves.map(ev => {
-                    ev.id = undefined;
-                    ev.endTime &&= ev.endTime.sub(ev.time);
+                    (ev as any).duration = ev.endTime.sub(ev.time);
+                    ev.endTime = undefined;
                     if (parent) {
                         ev.from[0] += (parent as any).startX;
                         ev.from[1] += (parent as any).startY;
@@ -148,13 +147,13 @@ export default class ChartData {
                     return ev;
                 });
                 line.alphas = line.alphas.map(ev => {
-                    ev.id = undefined;
-                    ev.endTime &&= ev.endTime.sub(ev.time);
+                    (ev as any).duration = ev.endTime.sub(ev.time);
+                    ev.endTime = undefined;
                     return ev;
                 });
                 line.rotates = line.rotates.map(ev => {
-                    ev.id = undefined;
-                    ev.endTime &&= ev.endTime.sub(ev.time);
+                    (ev as any).duration = ev.endTime.sub(ev.time);
+                    ev.endTime = undefined;
                     return ev;
                 });
 
@@ -171,13 +170,14 @@ export default class ChartData {
         (data.lines as any) = data.lines.sort((a, b) => a.id - b.id);
 
         (data.themes as any) = data.themes.map(ev => {
-            ev.endTime &&= ev.endTime.sub(ev.time);
+            (ev as any).duration = ev.endTime.sub(ev.time);
+            ev.endTime = undefined;
             return ev;
         });
 
         return JSON.stringify(data, (key: string, value: unknown) => {
-            if (key === 'description') return;
-            if (value instanceof Fraction) return this.meta.bpm.toTime(value) + offset;
+            if (key === 'description' || key === 'id') return;
+            if (value instanceof Fraction) return Math.round(this.meta.bpm.toTime(value) * 1000 + offset);
             return value;
         });
     }
@@ -198,7 +198,7 @@ export default class ChartData {
 
     async saveJson(path: string, options: FsOptions = { dir: BaseDirectory.Resource }) {
         const data = this.exportJson();
-        
+
         return writeFile(/\.json$/i.test(path) ? path : path + '.aec', data, options);
     }
 

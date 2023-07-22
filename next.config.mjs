@@ -1,15 +1,17 @@
-const nextMdx = require('@next/mdx');
-const withLess = require('next-with-less');
+import nextMdx from '@next/mdx';
+import remarkGfm from 'remark-gfm';
 
 const withMDX = nextMdx({
     extension: /\.mdx?$/,
-    options: {providerImportSource: '@mdx-js/react'}
+    options: {
+        providerImportSource: '@mdx-js/react',
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [],
+    }
 });
 
-// const tsLoaderConfig = 
-
 /** @type {import('next').nextConfig} */
-nextConfig = {
+const nextConfig = {
     webpack: (config) => {
         config.experiments.topLevelAwait = true;
         return config;
@@ -21,4 +23,4 @@ nextConfig = {
     pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']
 };
 
-module.exports = withLess(withMDX(nextConfig));
+export default withMDX(nextConfig);

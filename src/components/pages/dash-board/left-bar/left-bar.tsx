@@ -4,7 +4,7 @@ import styles from './left-bar.module.scss';
 import Plate from './plate/plate';
 import { LeftBarProps } from './left-bar.d';
 import { createWindow } from '@scripts/manager/window-manager';
-import { PLATES } from '@/pages/file-manager';
+import { PLATES } from '@/pages/dash-board';
 import useClassName from '@/hooks/use-class-name';
 
 

@@ -1,6 +1,6 @@
 import { BaseDirectory, createDir, FileEntry, readDir, removeFile, renameFile } from "@tauri-apps/api/fs";
 import FileList from "../../file-list/file-list";
-import { PLATES } from "@/pages/file-manager";
+import { PLATES } from "@/pages/dash-board";
 import { useEffect, useMemo, useState } from "react";
 import Filter from "../../filter/filter";
 import Tools from "../../tools/tools";

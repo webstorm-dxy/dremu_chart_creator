@@ -57,9 +57,19 @@ export const defaultDocList: IDocInfo[] = [
                 path: '/docs/edit/turn-to-editor'
             },
             {
+                key: 'guide',
+                title: '界面',
+                path: '/docs/edit/guide'
+            },
+            {
                 key: 'first-check',
                 title: '初次编辑检查',
                 path: '/docs/edit/first-check'
+            },
+            {
+                key: 'line',
+                title: '线',
+                path: '/docs/edit/line'
             },
         ]
     }

@@ -43,7 +43,7 @@ export default function Editor() {
                 title: '错误',
                 okText: '返回',
                 onOk() {
-                    turnTo(Pages.FILE_MANAGER);
+                    turnTo(Pages.DASH_BOARD);
                 },
                 content: '未获取到谱面',
             });

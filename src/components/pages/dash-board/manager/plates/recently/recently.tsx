@@ -1,4 +1,4 @@
-import { PLATES } from "@/pages/file-manager";
+import { PLATES } from "@/pages/dash-board";
 import { addRecent, deleteRecent, getRecent } from "@/scripts/utils/fs/recent-chart";
 import { type FileEntry } from "@tauri-apps/api/fs";
 import { useEffect, useState } from "react";

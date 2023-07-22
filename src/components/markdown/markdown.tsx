@@ -1,6 +1,5 @@
 import styles from './markdown.module.css';
 
-import Image from 'next/image';
 import useClassName from '@/hooks/use-class-name';
 import { MDXProvider } from '@mdx-js/react';
 import { MDXProps } from './markdown.d';
@@ -22,7 +21,6 @@ const Markdown = {
     HTML,
     Body,
     Heading,
-    Image,
     P,
     A,
     Code,
@@ -46,7 +44,6 @@ const components = {
     h4: Markdown.Heading.h4,
     h5: Markdown.Heading.h5,
     h6: Markdown.Heading.h6,
-    // img: Markdown.Image,
     p: Markdown.P,
     a: Markdown.A,
     code: Markdown.Code,
@@ -92,6 +89,7 @@ export function Pre(props: PropsWithChildren<unknown>) {
 }
 
 export function Table(props) {
+    console.log(props);
     return <table className={styles.table} {...props}></table>;
 }
 

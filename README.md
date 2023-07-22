@@ -1,4 +1,4 @@
-这是个 [Next.js](https://nextjs.org/) 项目。使用 [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) 创建。
+这是个 [Next.js](https://nextjs.org/) + [Tauri](https://tauri.app/) 的项目。
 
 ## 初始化项目
 
@@ -9,15 +9,7 @@ yarn
 ```
 ---
 
-2. 修改编辑器配置
-
-由于使用了实验性特性 —— (装饰器)[https://www.tslang.cn/docs/handbook/decorators.html]，所以部分编辑器进行特殊配置已保证正常运行。
-
-- vs code
-    1. 设置搜索 `experimental Decorators` 并开启。
-    2. 重启 vs code。
-
-3. 开发server:
+2. 开发server:
 
 > 整体应用
 
@@ -33,11 +25,7 @@ yarn run dev::next
 
 打开 [http://localhost:3000](http://localhost:3000) 可以看到结果
 
-
-
 ---
-
-
 
 ## 相关文档：
 
@@ -56,6 +44,8 @@ node:  <https://nodejs.org/en/docs/>
 tauri: <https://tauri.app/zh-cn/v1/guides/>
 
 antd: <https://ant-design.antgroup.com/components/overview-cn/>
+
+tailwindcss: <https://www.tailwindcss.cn/docs/installation>
 
 react timeline editor: <https://zdarcy.com/>
 

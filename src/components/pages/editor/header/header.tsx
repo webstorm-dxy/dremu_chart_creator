@@ -42,7 +42,7 @@ export default function Header() {
                     cancelText: '取消',
                     okText: '确定',
                     onOk: () => {
-                        turnTo(Pages.FILE_MANAGER);
+                        turnTo(Pages.DASH_BOARD);
                     }
                 });
             },
