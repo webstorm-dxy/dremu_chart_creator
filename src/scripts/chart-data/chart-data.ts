@@ -122,40 +122,49 @@ export default class ChartData {
                 line.start = undefined;
 
                 line.notes.map(ev => {
-                    if ((ev.time.compare(line.dots[0].time) < 0) || ((ev as IChartSustainEvent).endTime?.compare(line.dots[line.dots.length - 1].time) > 0)) {
+                    ev.id = undefined;
+                    if ((ev.time.compare(line.dots[0]?.time || 0) < 0) || ((ev as IChartSustainEvent).endTime?.compare(line.dots[line.dots.length - 1].time) > 0)) {
                         notification.warning({ message: "错误", description: `Note ${ev.id} 不在Dot事件范围内, 已被忽略\nat Line ${line.id}`, duration: null });
                         return;
                     }
                     (ev as any).lineId = line.id;
                     (ev as any).tapTime = ev.time;
-                    ev.time = undefined;
                     (ev as any).duration = ((ev as IChartSustainEvent).endTime as Fraction)?.sub(ev.time) || undefined;
+                    ev.time = undefined;
                     (ev as IChartSustainEvent).endTime = undefined;
 
                     (data as any).notes.push(ev);
                 });
                 line.notes = undefined;
-                line.moves = line.moves.map(ev => {
+                (line as any).move = line.moves.map(ev => {
+                    ev.id = undefined;
                     (ev as any).duration = ev.endTime.sub(ev.time);
                     ev.endTime = undefined;
                     if (parent) {
-                        ev.from[0] += (parent as any).startX;
-                        ev.from[1] += (parent as any).startY;
-                        ev.to[0] += (parent as any).startX;
-                        ev.to[1] += (parent as any).startY;
+                        ev.from[0] += (parent as any)?.startX || 0;
+                        ev.from[1] += (parent as any)?.startY || 0;
+                        ev.to[0] += (parent as any)?.startX || 0;
+                        ev.to[1] += (parent as any)?.startY || 0;
                     }
+                    (ev as any).from = {x: ev.from[0], y: ev.from[1]};
+                    (ev as any).to = {x: ev.to[0], y: ev.to[1]};
                     return ev;
                 });
-                line.alphas = line.alphas.map(ev => {
+                line.moves = undefined;
+                (line as any).alpha = line.alphas.map(ev => {
+                    ev.id = undefined;
                     (ev as any).duration = ev.endTime.sub(ev.time);
                     ev.endTime = undefined;
                     return ev;
                 });
-                line.rotates = line.rotates.map(ev => {
+                line.alphas = undefined;
+                (line as any).rotate = line.rotates.map(ev => {
+                    ev.id = undefined;
                     (ev as any).duration = ev.endTime.sub(ev.time);
                     ev.endTime = undefined;
                     return ev;
                 });
+                line.rotates = undefined;
 
                 childrenLines.push(...transformLines(line.children, line));
                 line.children = undefined;
@@ -170,13 +179,15 @@ export default class ChartData {
         (data.lines as any) = data.lines.sort((a, b) => a.id - b.id);
 
         (data.themes as any) = data.themes.map(ev => {
+            ev.id = undefined;
             (ev as any).duration = ev.endTime.sub(ev.time);
             ev.endTime = undefined;
             return ev;
         });
 
         return JSON.stringify(data, (key: string, value: unknown) => {
-            if (key === 'description' || key === 'id') return;
+            if (key === 'description') return;
+            if (key === 'ease') return value || 0;
             if (value instanceof Fraction) return Math.round(this.meta.bpm.toTime(value) * 1000 + offset);
             return value;
         });

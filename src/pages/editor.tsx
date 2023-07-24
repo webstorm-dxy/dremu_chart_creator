@@ -58,7 +58,7 @@ export default function Editor() {
             params[k] = value;
         });
 
-        const { path } = params;
+        const path = decodeURI(params.path);
 
         if (!path) {
             noChart();

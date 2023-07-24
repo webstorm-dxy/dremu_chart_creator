@@ -7,23 +7,22 @@ import FileSystem from "./plates/file-system/file-system";
 import { Empty } from "antd";
 // import Doc from "@/pages/doc";
 
-const Doc = () => <Empty description="文档编写中AwA"/>;
-
 /** 模块对应的组件 */
 const Plates = {
     recently: RecentlyFiles,
     editor: EditorFiles,
     fileSystem: FileSystem,
     toolbox: Toolbox,
-    doc: Doc
+    doc: () => <Empty description="文档编写中AwA"/>
+    // doc: () => <Doc disabledOpenInNewWindow />
 };
 
 /** 加载模块的组件 */
-export default function Manager({ plate, props }: ManagerProps) {
+export default function Manager({ plate }: ManagerProps) {
     // 获取当前模块
     const Manager = Plates[plate];
 
     return <div className={styles.manager}>
-        {<Manager {...props}/>}
+        {<Manager />}
     </div>;
 }

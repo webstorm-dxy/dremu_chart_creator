@@ -35,6 +35,7 @@
 .a {
     color: #4183C4;
 }
+
 .h1,
 .h2,
 .h3,
@@ -122,6 +123,7 @@
    font-size: 1em;
     color: #777;
 }
+
 .p,
 .blockquote,
 .ul,
@@ -394,4 +396,22 @@
     border: none;
     font-size: medium;
     font-family: Consolas, 'Courier New', monospace;
+}
+
+.section {
+    position: relative;
+    border-top: 1px solid #eee;
+    font-size: .75rem;
+
+    &[data-footnotes="true"]::before {
+        content: '脚注';
+        position: absolute;
+        top: 0;
+        font-weight: bold;
+        transform: translateY(-100%);
+    }
+
+    a[data-footnote-backref="true"] {
+        display: none;
+    }
 }

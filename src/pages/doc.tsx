@@ -59,7 +59,14 @@ export const defaultDocList: IDocInfo[] = [
             {
                 key: 'guide',
                 title: '界面',
-                path: '/docs/edit/guide'
+                path: '/docs/edit/guide',
+                children: [
+                    {
+                        key: 'game-view',
+                        title: '游戏视图',
+                        path: '/docs/edit/guide/game-view'
+                    }
+                ]
             },
             {
                 key: 'first-check',
@@ -69,8 +76,43 @@ export const defaultDocList: IDocInfo[] = [
             {
                 key: 'line',
                 title: '线',
-                path: '/docs/edit/line'
+                path: '/docs/edit/line',
+                children: [
+                    {
+                        key: 'manage',
+                        title: '管理线',
+                        path: '/docs/edit/line/manage'
+                    },
+                    {
+                        key: 'attr',
+                        title: '线的属性',
+                        path: '/docs/edit/line/attr',
+                    },
+                    {
+                        key: 'event',
+                        title: '线的事件',
+                        path: '/docs/edit/line/event',
+                        children: [
+                            {
+                                key: 'notes',
+                                title: 'Notes',
+                                path: '/docs/edit/line/event/notes'
+                            }
+                        ]
+                    }
+                ]
             },
+            {
+                key: 'timeline',
+                title: '时间轴',
+                children: [
+                    {
+                        key: 'set-time',
+                        title: '设置时间',
+                        path: '/docs/edit/timeline/set-time'
+                    }
+                ]
+            }
         ]
     }
 ];
@@ -83,11 +125,13 @@ export default function Doc({ docList = defaultDocList, sources = defaultSources
     const [sourceKey, setSourceKey] = useState(sources[0]?.value || '');
     const [docKey, setDocKey] = useState('/docs/test-v0.1.2');
 
+    // 文档源的路劲前缀获取
     const sourcePath = useMemo(
         () => sources?.find(source => source.value === sourceKey)?.path || '',
         [sourceKey, sources]
     );
 
+    // 获得文档的页面路径
     const docPath = useMemo(
         () => {
             function findDoc(list: IDocInfo[], key: string): IDocInfo | null {

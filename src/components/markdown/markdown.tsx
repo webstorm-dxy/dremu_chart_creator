@@ -1,10 +1,11 @@
-import styles from './markdown.module.css';
+import styles from './markdown.module.scss';
 
 import useClassName from '@/hooks/use-class-name';
 import { MDXProvider } from '@mdx-js/react';
 import { MDXProps } from './markdown.d';
 import { PropsWithChildren, ReactElement, useMemo } from 'react';
 import useParent from '@/hooks/use-parent';
+import { Image } from 'antd';
 
 
 
@@ -21,6 +22,7 @@ const Markdown = {
     HTML,
     Body,
     Heading,
+    Image,
     P,
     A,
     Code,
@@ -33,6 +35,10 @@ const Markdown = {
     Th,
     Td,
     Tr,
+    Section,
+    Sup,
+    Sub,
+    Span
 };
 
 const components = {
@@ -44,6 +50,7 @@ const components = {
     h4: Markdown.Heading.h4,
     h5: Markdown.Heading.h5,
     h6: Markdown.Heading.h6,
+    img: Markdown.Image,
     p: Markdown.P,
     a: Markdown.A,
     code: Markdown.Code,
@@ -56,6 +63,10 @@ const components = {
     th: Markdown.Th,
     td: Markdown.Td,
     tr: Markdown.Tr,
+    section: Markdown.Section,
+    sup: Markdown.Sup,
+    sub: Markdown.Sub,
+    span: Markdown.Span
 };
 
 
@@ -73,7 +84,8 @@ export function P(props) {
 }
 
 export function A(props) {
-    return <a className={styles.a} {...props}></a>;
+    // eslint-disable-next-line react/prop-types
+    return <a {...props} className={styles.a} href={props['data-footnote-ref'] ? '#' : props.href}></a>;
 }
 
 export function Code(props) {
@@ -89,7 +101,6 @@ export function Pre(props: PropsWithChildren<unknown>) {
 }
 
 export function Table(props) {
-    console.log(props);
     return <table className={styles.table} {...props}></table>;
 }
 
@@ -121,14 +132,34 @@ export function Tr(props) {
     return <tr className={styles.tr} {...props}></tr>;
 }
 
+export function Section(props) {
+
+    return <section {...props} className={styles.section}></section>;
+}
+
+export function Sup(props) {
+
+    return <sup {...props} className={styles.sup}></sup>;
+}
+
+export function Sub(props) {
+
+    return <sub {...props} className={styles.sub}></sub>;
+}
+
+export function Span(props) {
+    // eslint-disable-next-line react/prop-types
+    if (props?.className?.includes('katex-html')) return null;
+    return <span {...props}></span>;
+}
 
 export function MDX(props: MDXProps) {
     const { children, style, components: pComponents } = props;
     const mdx = useMemo(() => <div className={styles.body} style={style}>
-    <table></table>
-    <MDXProvider components={{ ...components, ...pComponents }}>
-        {children}
-    </MDXProvider></div>, [children, components]);
+        <table></table>
+        <MDXProvider components={{ ...components, ...pComponents }}>
+            {children}
+        </MDXProvider></div>, [children, components]);
     const layout: ReactElement = props.layout || <></>;
 
     return useParent(layout, mdx);
