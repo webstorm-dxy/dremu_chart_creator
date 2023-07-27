@@ -3,7 +3,7 @@ import styles from '@styles/Editor.module.scss';
 import Head from "next/head";
 import Main from '@components/pages/editor/main/main';
 import { BaseDirectory, createDir, exists, readTextFile } from '@tauri-apps/api/fs';
-import { Modal, Spin } from 'antd';
+import { Modal, Spin, message, notification } from 'antd';
 import { parseAecChart } from '@scripts/chart-data/chart-data';
 import turnTo, { Pages } from '@/scripts/manager/page';
 import { SetStateContextType, useSetStateContextValue, useStateContext } from '@/hooks/use-state-context';
@@ -16,7 +16,7 @@ import { getAudio } from '@/scripts/utils/fs/audio';
 import { useInterval, useKeyPress, useMount } from 'ahooks';
 import { useEffect, useMemo } from 'react';
 import { UserConfigContext } from '@/context/user-config';
-import { throttle } from 'lodash';
+import { debounce, throttle } from 'lodash';
 import dynamic from 'next/dynamic';
 
 const Header = dynamic(() => import('@components/pages/editor/header/header'), {ssr: false});
@@ -86,18 +86,20 @@ export default function Editor() {
         editorContextValue.state.chart?.meta.bpm.setMusicLength(musicState.duration);
     }, [musicState.duration]);
 
-    const saveChart = throttle(async() => {
-        await createDir('backup-copy', {dir: BaseDirectory.Resource}).catch(() => {});
-        editorContextValue.state.chart.saveAec('backup-copy/' + editorContextValue.state.chart.getId());
+    const saveChart = throttle(async(targetDir: string) => {
+        await createDir(targetDir, {dir: BaseDirectory.Resource}).catch(() => {});
+        editorContextValue.state.chart.saveAec(targetDir + '/' + editorContextValue.state.chart.getId())
+            .then(() => message.success(targetDir === 'backup-copy' ? '备份保存成功' : '保存成功'))
+            .catch((err) => notification.error({message: '保存失败', description: '错误信息:\n' + err, duration: null}));
     }, 3000);
 
-    useInterval(saveChart, userConfigContext.editor.autoSaveDelay || 60000);
+    useInterval(() => saveChart('backup-copy'), userConfigContext.editor.autoSaveDelay || 60000);
 
     useKeyPress('space', throttle(() => {
         musicState.paused ? musicControls.play() : musicControls.pause();
     }, 100), {exactMatch: true});
 
-    useKeyPress('ctrl.s', saveChart, {exactMatch: true});
+    useKeyPress('ctrl.s', debounce(() => saveChart('chart'), 200), {exactMatch: true});
 
     return (
         <EditorContext.Provider value={editorContextValue}>

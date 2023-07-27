@@ -403,6 +403,10 @@
     border-top: 1px solid #eee;
     font-size: .75rem;
 
+    &[data-footnotes="true"] {
+        margin-top: 4rem;
+    }
+
     &[data-footnotes="true"]::before {
         content: '脚注';
         position: absolute;

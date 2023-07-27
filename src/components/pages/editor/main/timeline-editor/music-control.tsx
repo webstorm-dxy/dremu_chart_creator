@@ -1,13 +1,35 @@
 import Icon from "@/components/icon/icon";
 import Label from "@/components/label/label";
+import { EditorContext } from "@/context/editor/editor";
 import { MusicContext } from "@/context/editor/music";
+import { setRecordState } from "@/hooks/set-record-state";
+import { useStateContext } from "@/hooks/use-state-context";
+import range from "@/scripts/utils/range";
+import { useKeyPress } from "ahooks";
 import { Space, Button, Slider, Popover } from "antd";
 import dayjs from "dayjs";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 let playing = false;
 export default function MusicControl() {
     const musicContext = useContext(MusicContext);
+    const [editorContext, setEditorContext] = useStateContext(EditorContext);
+    const { timeline } = editorContext;
+
+    useEffect(() => {
+        if (!musicContext?.ref?.current) {
+            setRecordState(setEditorContext, prev => prev.timeline.playRate = 1);
+            return;
+        }
+        if (musicContext.ref.current.playbackRate === timeline.playRate) return;
+        musicContext.ref.current.playbackRate = range(timeline.playRate, 0.25, 4);
+        if (musicContext.ref.current.playbackRate !== timeline.playRate)
+            setRecordState(setEditorContext, prev => prev.timeline.playRate = musicContext.ref.current.playbackRate);
+    }, [timeline.playRate]);
+
+    useKeyPress('1', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(1, 0.25, 4)); }, { exactMatch: true });
+    useKeyPress('openbracket', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate - 0.25, 0.25, 4)); }, { exactMatch: true });
+    useKeyPress('closebracket', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate + 0.25, 0.25, 4)); }, { exactMatch: true });
 
     return <Space>
         <Button type="text" onKeyDown={ev => ev.preventDefault()} shape='circle' onClick={() => musicContext.state.paused ? musicContext.controls.play() : musicContext.controls.pause()}><Icon icon={musicContext.state.paused ? 'play' : 'pause'} /></Button>
@@ -29,10 +51,11 @@ export default function MusicControl() {
             <Button onKeyDown={ev => ev.preventDefault()} type="text" shape='circle' onClick={(ev) => {
                 if (musicContext?.state.muted || !musicContext?.state.volume) {
                     musicContext?.controls?.unmute();
-                    if(!musicContext?.state.volume) musicContext?.controls?.volume(0.5);
+                    if (!musicContext?.state.volume) musicContext?.controls?.volume(0.5);
                 } else musicContext?.controls?.mute();
                 ev.target.blur?.();
             }}><Icon icon={musicContext?.state?.muted || !musicContext?.state.volume ? 'volume-xmark' : 'volume-high'} /></Button>
         </Popover>
+        <Label label="播放速度"><Slider className="w-32" value={timeline.playRate} min={0.25} max={4} step={0.25} tooltip={{ formatter: (v) => v + '倍' }} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.playRate = range(v, 0.25, 4))} /></Label>
     </Space>;
 }

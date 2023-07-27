@@ -67,23 +67,23 @@ export default class ChartData {
         });
     };
 
-    getEventById(id: string): { event: IEvents | null, type: keyof Pick<IChartLine, 'notes' | 'alphas' | 'dots' | 'moves' | 'rotates' | 'timings'> | null } {
-        let res = { event: null, type: null };
+    getEventById(id: string): { event: IEvents | null, line: IChartLine|null, type: keyof Pick<IChartLine, 'notes' | 'alphas' | 'dots' | 'moves' | 'rotates' | 'timings'> | null } {
+        let res = { event: null, type: null, line: null };
         if (!id) return res;
         this.getLine((line) => {
             let ev;
             ev = line.notes.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'notes' }; return true; }
+            if (ev) { res = { event: ev, type: 'notes', line }; return true; }
             ev = line.dots.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'dots' }; return true; }
+            if (ev) { res = { event: ev, type: 'dots', line }; return true; }
             ev = line.alphas.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'alphas' }; return true; }
+            if (ev) { res = { event: ev, type: 'alphas', line }; return true; }
             ev = line.moves.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'moves' }; return true; }
+            if (ev) { res = { event: ev, type: 'moves', line }; return true; }
             ev = line.rotates.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'rotates' }; return true; }
+            if (ev) { res = { event: ev, type: 'rotates', line }; return true; }
             ev = line.timings.find(ev => ev.id === id);
-            if (ev) { res = { event: ev, type: 'timings' }; return true; }
+            if (ev) { res = { event: ev, type: 'timings', line }; return true; }
         });
 
         return res;
@@ -146,8 +146,8 @@ export default class ChartData {
                         ev.to[0] += (parent as any)?.startX || 0;
                         ev.to[1] += (parent as any)?.startY || 0;
                     }
-                    (ev as any).from = {x: ev.from[0], y: ev.from[1]};
-                    (ev as any).to = {x: ev.to[0], y: ev.to[1]};
+                    (ev as any).from = {x: ev.from?.[0] || 0, y: ev.from?.[1] || 0};
+                    (ev as any).to = {x: ev.to?.[0] || 0, y: ev.to?.[1] || 0};
                     return ev;
                 });
                 line.moves = undefined;
@@ -432,3 +432,17 @@ export function parseAecChart(aecChart: ChartAecFile) {
 
     return chart;
 }
+
+export const noteTypeOptions = (() => {
+    const res = [];
+    for (const key of Object.keys(ChartNoteEventType)) {
+        if (typeof ChartNoteEventType[key] !== 'number') continue;
+
+        res.push({
+            title: key,
+            value: ChartNoteEventType[key],
+            label: key,
+        });
+    }
+    return res;
+})();

@@ -34,9 +34,19 @@ if (!needUpgrades.version && !needUpgrades.major && !needUpgrades.minor && !need
 
         const firstDotIndex = oldVersion.indexOf('.');
         const lastDotIndex = oldVersion.lastIndexOf('.');
-        let majorVersion = Number(oldVersion.slice(0, firstDotIndex)) + (needUpgrades.major ? 1 : 0);
-        let minorVersion = Number(oldVersion.slice(firstDotIndex + 1, lastDotIndex)) + (needUpgrades.minor ? 1 : 0);
-        let patchVersion = Number(oldVersion.slice(lastDotIndex + 1, oldVersion.length)) + (needUpgrades.patch ? 1 : 0);
+        let majorVersion = Number(oldVersion.slice(0, firstDotIndex));
+        let minorVersion = Number(oldVersion.slice(firstDotIndex + 1, lastDotIndex));
+        let patchVersion = Number(oldVersion.slice(lastDotIndex + 1, oldVersion.length));
+
+        if (needUpgrades.major) {
+            majorVersion++;
+            minorVersion = 0;
+            patchVersion = 0;
+        } else if (needUpgrades.minor) {
+            minorVersion++;
+            patchVersion = 0;
+        } else if (needUpgrades.patch) 
+            patchVersion++;
 
         version = `${majorVersion}.${minorVersion}.${patchVersion}`;
     }

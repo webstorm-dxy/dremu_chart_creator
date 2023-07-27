@@ -1,4 +1,4 @@
-export default function useClassName(...classNames: string[]): string {
+export default function useClassName(...classNames: (string|undefined|null|boolean)[]): string {
     /**
      * @description 合并并格式化若干个 className.
      * @return string 

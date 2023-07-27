@@ -7,6 +7,7 @@ import { cloneDeep } from "lodash";
 import ChartData, { EventCreator } from "../chart-data/chart-data";
 import { IChartAlphaEvent, IChartDotEvent, IChartLine, IChartMoveEvent, IChartNoteEvent, IChartRotateEvent, IChartTimingEvent } from "@/interfaces/chart-data/chart-data";
 import Fraction from "fraction.js";
+import { getSelectedData } from "./get-data";
 
 
 export function deleteByActionId(setAction: ISetAction<IEditorContext>, ids: string[]) {
@@ -27,6 +28,7 @@ export function deleteSelected(setAction: ISetAction<IEditorContext>) {
         data.forEach(row => {
             row.actions = row.actions.filter(act => !selected.has(act.id));
         });
+        selected.clear();
     });
 }
 
@@ -61,10 +63,12 @@ export function copy(setAction: ISetAction<IEditorContext>, data: TimelineRow[])
     setRecordState(setAction, prev => prev.clipBoard = data);
 }
 
-export function paste(setAction: ISetAction<IEditorContext>, startTime: number, chart: ChartData, targetLine?: IChartLine) {
+export function paste(setAction: ISetAction<IEditorContext>, startTime: number, targetLine?: IChartLine) {
     setRecordState(setAction, prev => {
         const data = prev.timeline.data;
         const pasteData = cloneDeep(prev.clipBoard);
+        const chart = prev.chart;
+        if (!chart) return;
         pasteData.forEach(pasteRow => {
             const row = data.find(row => row.id === pasteRow.id);
 
@@ -100,5 +104,6 @@ export function paste(setAction: ISetAction<IEditorContext>, startTime: number, 
                 line[type].push(newEv);
             });
         });
+        prev.editing.update = {};
     });
 }

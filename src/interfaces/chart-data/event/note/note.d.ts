@@ -4,7 +4,7 @@ import { ChartEventArgs } from "../event";
 export enum NoteTypes {
     Tap,
     Hold,
-    Drag,
+    Darg,
     Flick
 }
 

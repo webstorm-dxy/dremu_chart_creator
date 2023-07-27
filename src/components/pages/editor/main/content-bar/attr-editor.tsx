@@ -3,6 +3,7 @@ import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
 import { ChartFlickEventDirections, ChartNoteEventType, IChartFlickNoteEvent, IChartHoldNoteEvent, IChartNoteEvents, IChartSustainEvent } from "@/interfaces/chart-data/chart-data.d";
+import { noteTypeOptions } from "@/scripts/chart-data/chart-data";
 import { Form, InputNumber, Select, SelectProps, TooltipProps } from "antd";
 import Fraction from "fraction.js";
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -29,20 +30,6 @@ const helpOfKey: Record<string | number, string> = { position: '相对于线锚�
 
 export function NoteTypeSelect(props: INoteTypeSelect) {
     const { event, onChange } = props;
-
-    const noteTypeOptions: SelectProps['options'] = useMemo(() => {
-        const res = [];
-        for (const key of Object.keys(ChartNoteEventType)) {
-            if (typeof ChartNoteEventType[key] !== 'number') continue;
-
-            res.push({
-                title: key,
-                value: ChartNoteEventType[key],
-                label: key,
-            });
-        }
-        return res;
-    }, []);
 
     return <Form.Item required label={props.label} tooltip={props.tooltip}>
         <Select options={noteTypeOptions} optionLabelProp="label" {...props} onChange={(val, options) => {
@@ -72,14 +59,8 @@ export function NoteTypeSelect(props: INoteTypeSelect) {
 
 export default function AttrEditor() {
     const [editorContext, setEditorContext] = useStateContext(EditorContext);
-    const [update, setUpdate] = useState({});
     const selected = editorContext.editing.selected;
     const id = selected.values().next().value;
-    const ev = useMemo(() => editorContext.chart?.getEventById(id).event, [id]);
-
-    useEffect(() => {
-        setUpdate({});
-    }, [ev?.time, (ev as IChartSustainEvent)?.endTime]);
 
     const formItems = useMemo<ReactNode>(() => {
         const chart = editorContext.chart;
@@ -93,9 +74,7 @@ export default function AttrEditor() {
             return ((...args: unknown[]) => {
                 if (!args[0] && args[0] !== 0) return;
                 handler?.(...args);
-                console.log(event);
                 setRecordState(setEditorContext, prev => prev.editing.update = {});
-                setUpdate({});
             }) as unknown as T;
         }
 
@@ -124,20 +103,16 @@ export default function AttrEditor() {
                     onChange={onChangeHandler(val => data[key] = Number(val))} />
             </Form.Item>;
 
-            if (typeof value === 'number') {
-                console.log(data, key, data[key]);
-
-                return <Form.Item required key={id} label={label} tooltip={tooltip}>
-                    <InputNumber value={Number(value) || 0} onChange={onChangeHandler(val => data[key] = Number(val))} />
-                </Form.Item>;
-            }
+            if (typeof value === 'number') return <Form.Item required key={id} label={label} tooltip={tooltip}>
+                <InputNumber value={Number(value) || 0} onChange={onChangeHandler(val => data[key] = Number(val))} />
+            </Form.Item>;
         }
 
         return Object.keys(event).sort((a, b) => Math.abs(attrKeyIndex.indexOf(a)) - Math.abs(attrKeyIndex.indexOf(b)))
             .map<ReactNode>((key, i) => {
                 return getFormRender(event, key, { id: `${event.id} ${key} ${i}`, label: labelOfKey[key], description: helpOfKey[key] });
             });
-    }, [id, update, selected.size]);
+    }, [id, editorContext.editing.update, selected.size]);
 
     return <Form className="w-full" layout="vertical" labelWrap>
         {formItems}

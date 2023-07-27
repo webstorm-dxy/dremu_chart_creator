@@ -6,6 +6,7 @@ import { TimelineRow } from "@xzdarcy/react-timeline-editor";
 import { HTMLMediaProps } from "react-use/lib/factory/createHTMLMediaHook";
 import { defaultMusicContext } from "./music";
 import { timelineEffects } from "@/components/timeline-effect/effects";
+import { NoteTypes } from "@/interfaces/chart-data/event/note/note.d";
 
 export interface EditorConfigs {
     path: string;
@@ -13,7 +14,9 @@ export interface EditorConfigs {
         paused: boolean;
         scale: number;
     },
-    createActionSnip: boolean,
+    createActionSnip: boolean;
+    createActionGlue: boolean;
+    addNoteType: NoteTypes;
 }
 
 export interface IEditorContext {
@@ -33,6 +36,7 @@ export interface IEditorContext {
         beatBar: number;
         scaleWidth: number;
         rowHeight: number;
+        playRate: number,
         snip: {
             gird: boolean;
             dragline: boolean;
@@ -48,6 +52,8 @@ export const defaultEditorContext: IEditorContext = {
             scale: 1
         },
         createActionSnip: true,
+        createActionGlue: true,
+        addNoteType: NoteTypes.Tap
     },
     chart: null,
     musicProps: defaultMusicContext.props,
@@ -64,6 +70,7 @@ export const defaultEditorContext: IEditorContext = {
         beatBar: 4,
         scaleWidth: 160,
         rowHeight: 32,
+        playRate: 1,
         snip: {
             gird: true,
             dragline: true

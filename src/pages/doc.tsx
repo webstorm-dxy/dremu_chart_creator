@@ -25,6 +25,7 @@ export interface ISource {
 }
 
 export interface IDocProps {
+    className?: string;
     docList?: IDocInfo[];
     sources?: ISource[];
     disabledOpenInNewWindow?: boolean;
@@ -94,9 +95,44 @@ export const defaultDocList: IDocInfo[] = [
                         path: '/docs/edit/line/event',
                         children: [
                             {
+                                key: 'universal',
+                                title: '通用属性',
+                                path: '/docs/edit/line/event/universal'
+                            },
+                            {
+                                key: 'ease-map',
+                                title: '缓动表',
+                                path: '$https://easings.net/zh-cn'
+                            },
+                            {
                                 key: 'notes',
                                 title: 'Notes',
                                 path: '/docs/edit/line/event/notes'
+                            },
+                            {
+                                key: 'dots',
+                                title: 'Dots',
+                                path: '/docs/edit/line/event/dots'
+                            },
+                            {
+                                key: 'moves',
+                                title: 'Moves',
+                                path: '/docs/edit/line/event/moves'
+                            },
+                            {
+                                key: 'alphas',
+                                title: 'Alphas',
+                                path: '/docs/edit/line/event/alphas'
+                            },
+                            {
+                                key: 'rotates',
+                                title: 'Rotates',
+                                path: '/docs/edit/line/event/rotates'
+                            },
+                            {
+                                key: 'timings',
+                                title: 'Timings',
+                                path: '/docs/edit/line/event/timings'
                             }
                         ]
                     }
@@ -110,18 +146,43 @@ export const defaultDocList: IDocInfo[] = [
                         key: 'set-time',
                         title: '设置时间',
                         path: '/docs/edit/timeline/set-time'
+                    },
+                    {
+                        key: 'edit-events',
+                        title: '编辑事件',
+                        path: '/docs/edit/timeline/edit-events'
+                    },
+                    {
+                        key: 'attrs',
+                        title: '时间轴属性',
+                        path: '/docs/edit/timeline/attrs'
                     }
                 ]
+            },
+            {
+                key: 'chart',
+                title: '谱面',
+                path: '/docs/edit/chart'
+            },
+            {
+                key: 'other',
+                title: '其它操作',
+                path: '/docs/edit/other'
             }
         ]
-    }
+    },
+    {
+        key: 'preview',
+        title: '预览',
+        path: '/docs/preview'
+    },
 ];
 
 export const defaultSources: ISource[] = [
     { value: "local", label: '本地', path: '' }
 ];
 
-export default function Doc({ docList = defaultDocList, sources = defaultSources, disabledOpenInNewWindow = true }: IDocProps) {
+export default function Doc({ className, docList = defaultDocList, sources = defaultSources, disabledOpenInNewWindow = true }: IDocProps) {
     const [sourceKey, setSourceKey] = useState(sources[0]?.value || '');
     const [docKey, setDocKey] = useState('/docs/test-v0.1.2');
 
@@ -144,20 +205,22 @@ export default function Doc({ docList = defaultDocList, sources = defaultSources
                 }
                 return null;
             }
+            const docPath = findDoc(docList, docKey)?.path || '';
 
-            return sourcePath + (findDoc(docList, docKey)?.path || '');
+            if (docPath[0] === '$') return docPath.slice(1);
+            return sourcePath + docPath;
         },
         [sourcePath, docKey, docList]
     );
 
-    return <div className="max-h-full h-screen w-full">
+    return <div className={useClassName(className.includes('h-') || 'h-screen', "max-h-full w-full overflow-hidden", className)}>
         <div className="flex items-center h-8 w-full bg-white shadow relative z-20">
             <Label label="文档源"><Select size="small" value={sourceKey} options={sources} onChange={val => setSourceKey(val)} /></Label>
             {!disabledOpenInNewWindow && <Button size="small" onClick={() => createWindow('doc', { url: '/doc' })}>在新窗口打开</Button>}
         </div>
-        <div className={useClassName("flex w-full bg-slate-50", styles.content)}>
+        <div className={useClassName("relative flex w-full bg-slate-50", styles.content)}>
             <DocTree className='z-10' docKey={docKey} docList={docList} setDocKey={setDocKey} />
-            {!!docPath || <Empty className='h-full w-full mt-8' description="无页面"/>}
+            {!!docPath || <Empty className='h-full w-full mt-8' description="无页面" />}
             {!!docPath && <iframe className="h-full w-full" src={docPath} />}
         </div>
     </div>;

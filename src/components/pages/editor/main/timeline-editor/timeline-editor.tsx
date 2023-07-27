@@ -20,6 +20,8 @@ import SelectedEffect from '@/components/timeline-effect/effects/selected-effect
 import { copy, deleteSelected, paste } from '@/scripts/timeline/clip-board';
 import { getSelectedData } from '@/scripts/timeline/get-data';
 import range from '@/scripts/utils/range';
+import { glueEvent } from '@/scripts/timeline/edit-data';
+import { NoteTypes } from '@/interfaces/chart-data/event/note/note.d';
 
 function actionRender(action: TimelineAction, row: TimelineRow) {
     const effectRender = timelineEffectRenders[action.effectId]?.(action, row);
@@ -59,6 +61,7 @@ export default function TimelineEditor() {
             // prev.timeline.data = data;
 
             const line = prev.chart?.getLine(editorContext.editing.line);
+            const newEvents: string[] = [];
 
             data.forEach(row => {
                 const actions = row.actions;
@@ -77,6 +80,7 @@ export default function TimelineEditor() {
                                 case 'note-3': attrs.type = ChartNoteEventType.Flick; break;
                             }
                             ev = createFn(attrs);
+                            newEvents.push(ev.id);
                         }
 
                         ev.time = new Fraction(action.start);
@@ -97,9 +101,13 @@ export default function TimelineEditor() {
                     line.timings = updateEvents(line.timings, EventCreator.createTimingEvent);
                 else if (keyName === 'rotates')
                     line.rotates = updateEvents(line.rotates, EventCreator.createRotateEvent);
+
             });
 
             prev.chart?.setLine(line.id, line);
+            newEvents.forEach(id => {
+                if (editorConfigs.createActionGlue) glueEvent(setEditorContext, id);
+            });
             timeline.engine.reSetData(prev.timeline.data);
         });
     };
@@ -120,50 +128,52 @@ export default function TimelineEditor() {
     };
 
     const onDoubleClickRowHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { row, time }: { row: TimelineRow, time: number }) => {
-        const { id } = row;
+        const { id: rowId } = row;
         const barLength = 1 / timeline.beatBar;
         time = editorConfigs.createActionSnip ? Math.round(time / barLength) * barLength : time;
+        const id = createMd5();
 
-        if (id === 'notes')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        if (rowId === 'notes') {
+            const isHold = editorConfigs.addNoteType === NoteTypes.Hold;
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
-                end: time + 0.05,
-                flexible: false,
-                effectId: 'note-0',
+                end: isHold ? time + barLength : time + 0.05,
+                flexible: isHold,
+                effectId: 'note-' + range(editorConfigs.addNoteType || 0, 0, 3),
             }));
-        if (id === 'dots')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        } if (rowId === 'dots')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
                 end: time,
                 flexible: false,
                 effectId: 'dot',
             }));
-        if (id === 'alphas')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        if (rowId === 'alphas')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
                 end: time + barLength,
                 effectId: 'alpha',
             }));
-        if (id === 'moves')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        if (rowId === 'moves')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
                 end: time + barLength,
                 effectId: 'move',
             }));
-        if (id === 'rotates')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        if (rowId === 'rotates')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
                 end: time + barLength,
                 effectId: 'rotate',
             }));
-        if (id === 'timings')
-            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === id).actions.push({
-                id: createMd5(),
+        if (rowId === 'timings')
+            return setRecordState(setEditorContext, prev => prev.timeline.data.find(r => r.id === rowId).actions.push({
+                id,
                 start: time,
                 end: time,
                 flexible: false,
@@ -231,10 +241,11 @@ export default function TimelineEditor() {
                     id: 'notes',
                     classNames: [styles['timeline-notes-row']],
                     actions: line.notes.map((note) => {
+                        const isHold = note.type === ChartNoteEventType.Hold;
                         return {
                             id: note.id,
-                            start: note.type === ChartNoteEventType.Hold ? note.time.valueOf() : note.time.valueOf(),
-                            end: note.type === ChartNoteEventType.Hold && note.endTime ? note.endTime.valueOf() : note.time.valueOf() + 0.05,
+                            start: isHold ? note.time.valueOf() : note.time.valueOf(),
+                            end: isHold && note.endTime ? note.endTime.valueOf() : note.time.valueOf() + 0.05,
                             effectId: 'note-' + note.type,
                             selected: editorContext.editing.selected.has(note.id),
                             flexible: note.type === ChartNoteEventType.Hold
@@ -314,6 +325,11 @@ export default function TimelineEditor() {
         [editorContext.timeline.data.map(row => row.actions.length)]
     );
 
+    useKeyPress('ctrl.g', throttle(ev => {
+        editorContext.editing.selected.forEach(val => glueEvent(setEditorContext, val));
+        ev.preventDefault();
+    }, 500), { exactMatch: true });
+
     useKeyPress('ctrl.x', throttle(() => {
         const data = getSelectedData(editorContext);
         copy(setEditorContext, data);
@@ -329,10 +345,16 @@ export default function TimelineEditor() {
     }, 1000), { exactMatch: true });
 
     useKeyPress('ctrl.v', throttle(() => {
-        paste(setEditorContext, editorContext.timeline.engine.getTime(), editorContext.chart, editorContext.chart.getLine(editorContext.editing.line));
-        setRecordState(setEditorContext, prev => prev.editing.update = {});
+        paste(
+            setEditorContext,
+            editorContext.timeline.engine.getTime(),
+            editorContext.chart.getLine(editorContext.editing.line)
+        );
     }, 1000), { exactMatch: true });
 
+    useKeyPress('ctrl.d', throttle(ev => { setRecordState(setEditorContext, prev => { prev?.editing.selected.clear(); prev.editing.update = {}; }); ev.preventDefault(); }, 1000), { exactMatch: true });
+
+    // // todo h-1/2 border-t-2
     return <div className="w-full h-1/2 relative border-t-2 border-gray-300 overflow-hidden">
         <Tools />
         <div className={useClassName("flex bg-gray-100", styles['timeline-box'])}>

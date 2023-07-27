@@ -6,8 +6,9 @@ import { Tool } from './tool-bar/tool-bar.d';
 import FCState from '@interfaces/function-component-state';
 import {MainContext} from './main.d';
 import ContentBar from './content-bar/content-bar';
-import PreviewView from './preview/preview-view';
+// import PreviewView from './preview/preview-view';
 import TimelineEditor from './timeline-editor/timeline-editor';
+import Doc from '@/pages/doc';
 
 
 export const mainContext: Context<MainContext> = createContext({
@@ -22,8 +23,9 @@ export default function Main() {
         <mainContext.Provider value={{tool, setTool}}>
             {/* <Toolbar tool={tool}></Toolbar> */}
             <ContentBar />
-            <div className="w-4/5">
-                <PreviewView />
+            <div className="w-4/5 z-0">
+                {/* <PreviewView /> */}
+                <Doc className='h-1/2'/>
                 <TimelineEditor/>
             </div>
         </mainContext.Provider>
