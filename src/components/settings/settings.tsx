@@ -24,12 +24,21 @@ export interface IConfigTemplateProps {
     templates: IConfigTemplate[];
 }
 
+export function getTargetFromPath(obj: object, pathList: string[]): any {
+    let target = obj;
+    for (let i = 0; i < pathList.length; i++) {
+        const path = pathList[i];
+        target = target[path];
+        if (!target || typeof target !== 'object') return i + 1 === pathList.length ? target : undefined;
+    }
+}
+
 export const configTemplates: IConfigTemplate[] = [
     // todo 模式匹配生成配置项
     {
         match: (infos: IConfigTemplateInfo) => typeof infos.value === 'string',
         content: (infos: IConfigTemplateInfo) => <Form.Item>
-            <Input value={infos.value as string}/>
+            <Input value={infos.value as string} />
         </Form.Item>
     }
 ];
