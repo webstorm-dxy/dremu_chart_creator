@@ -18,6 +18,7 @@ const nextConfig = {
         config.experiments.topLevelAwait = true;
         return config;
     },
+    compiler: process.env.NODE_ENV === 'production' ? {removeConsole: {exclude: ['error', 'warn']}} : void 0,
     eslint: {ignoreDuringBuilds: true,},
     typescript: {ignoreBuildErrors: true,},
     reactStrictMode: true,
