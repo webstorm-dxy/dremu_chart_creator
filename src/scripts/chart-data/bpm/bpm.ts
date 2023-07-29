@@ -1,136 +1,159 @@
-import { IBpm } from "@interfaces/chart-data/bpm";
 import { Beat } from "@interfaces/chart-data/chart-data";
 import Fraction from "fraction.js";
+import { assign } from "lodash";
 
-export default class Bpm extends Array<IBpm>{
-    musicLength: number;
+export interface IBpm<T extends Fraction | number = Fraction | number> {
+    beat: Beat<T>;
+    bpm: number;
+}
 
-    constructor(bpm: IBpm[], musicLength?: number) {
-        super();
-        
-        for (let i = 0; i < bpm.length; i++) {
-            this.push(bpm[i]);
-        }
-        this.musicLength = musicLength ?? 120;
+export interface ICacheBpm extends IBpm<Fraction> {
+    /**
+     * @description 对应时间的缓存
+     * ms
+     */
+    cache?: number | null;
+}
+
+export default class Bpm {
+    bpms: ICacheBpm[] = [];
+
+    constructor(bpm?: IBpm[]) {
+        this.reset(bpm);
     }
 
-    // 获取到音乐结束时的 beat 数
-    getLength(): Beat {
-        const beatLength = new Fraction(0);
+    get length(): number { return this.bpms.length; }
 
-        for (let i = 0, nextBeat = 0; i < this.length; i++) {
-            // 计算时间段
-            if (i + 1 == this.length) {
-                nextBeat = this.musicLength;
-            } else {
-                nextBeat = this[i + 1].beat.valueOf();
-            }
-            // 计算时间段内拍子数
-            beatLength.add((nextBeat - this[i].beat.valueOf()) / 60 * this[i].bpm);
-        }
-        return beatLength;
-    }
+    static countTime = (bpm: number, beat: number | Fraction) => {
+        return bpm === 0 ? 0 : 60 / bpm * (beat instanceof Fraction ? beat.valueOf() : beat);
+    };
 
-    toTime(beat: Beat, longest: boolean = false): number {
-        if (!beat) return 0;
-        const time: number = beat.valueOf();
-        let beatLength: number = 0, lastBeatLength: number = 0, nextTime: number = 0;
+    static countBeat = (bpm: number, time: number): Fraction => {
+        const res = time * bpm / 60;
+        return new Fraction(res);
+    };
 
-        for (let i = 0; i < this.length; i++) {
-            if (i + 1 >= this.length) {
-                if (longest) {
-                    nextTime = 9999999;
-                } else {
-                    nextTime = this.musicLength;
-                }
-            } else {
-                nextTime = this[i + 1].beat.valueOf();
-            }
-            lastBeatLength = beatLength;
-            beatLength += (nextTime - this[i].beat.valueOf()) / 60 * this[i].bpm;
-            if (beatLength > time) {
+    static countBpm = (beat: number|Fraction, time: number): number => {
+        return 60 * (beat instanceof Fraction ? beat.valueOf(): beat) / time;
+    }; 
 
-                return this[i].beat.valueOf() + 60 / this[i].bpm * (time - lastBeatLength);
-            }
-        }
+    getCache = (index: number) => {
+        const info = this.bpms[index];
+        if (!info) return;
 
-        return this.musicLength;
-    }
+        if (index === 0) { info.cache = 0; return; }
 
-    toBeat(time: number | Fraction): Fraction {
-        if (!time) return new Fraction(0);
-        time instanceof Fraction ? null : time = new Fraction(time);
-
-        let nextTime: Fraction = new Fraction(0);
-        const _60 = new Fraction(60);
-
-        for (let i = 0; i < this.length; i++) {
-            if (i + 1 == this.length || time.compare(this[i + 1].beat) <= 0) {
-                const beatLength: Fraction = new Fraction(0);
-
-                for (let j = 0; j < i; j++) {
-                    if (j == i) {
-                        nextTime = time.clone();
-                    } else {
-                        nextTime = this[j + 1].beat.clone();
-                    }
-                    beatLength.add(nextTime.sub(this[j].beat).div(_60).mul(new Fraction(this[j].bpm)));
-                }
-
-                return time.sub(this[i].beat)
-                    .div(_60)
-                    .mul(new Fraction(this[i].bpm))
-                    .add(new Fraction(beatLength));
-            }
-        }
-    }
-    setBpmList(bpmList: IBpm[]) {
-        this.splice(0, this.length, ...bpmList);
-    }
-    addBpm(bpm: IBpm): Int {
-        let added = false;
-
-        for (let i = 0; i < this.length; i++) {
-            const bpm = this[i];
-
-            if (bpm.beat.compare(bpm.beat) > 0) {
-                if (!added) {
-                    this.splice(i, 0, bpm);
-                    added = true;
-                    return i + 1;
-                }
-            }
-        }
-        if (!added) {
-            this.push(bpm);
-            return this.length - 1;
-        }
-    }
-    setBpm(index: number, bpm: IBpm) {
-        if (index === 0) {
-            this[0].bpm = bpm.bpm;
+        const lastInfo = this.bpms[index - 1];
+        if (lastInfo.bpm === 0) {
+            if (!lastInfo.cache && index !== 1) this.getCache(index - 1);
+            info.cache = lastInfo.cache || 0;
             return;
         }
-        this.splice(index, 1);
-        for (let i = 0; i < this.length; i++) {
-            if (this[i].beat.compare(bpm.beat) > 0) {
-                this.splice(i, 0, bpm);
-                break;
-            } else if (i === this.length - 1) {
-                this.push(bpm);
-                break;
-            }
-        }
-    }
 
-    removeBpm(index: number) {
-        this.splice(index, 1);
-        if (index === 0) {
-            this[0].beat = new Fraction(0);
-        }
-    }
+        const lastTime = this.toTime(lastInfo.beat);
+        info.cache = lastTime + Bpm.countTime(lastInfo.bpm, info.beat.valueOf() - lastInfo.beat.valueOf());
+    };
 
-    setMusicLength(length: number) {
-        this.musicLength = length;
-    }
+    toTime = (beat: number | Fraction): number => {
+        const targetBeat = beat instanceof Fraction ? beat.valueOf() : beat;
+
+        // 查找最近计算信息
+        const startInfoIndex = this.bpms.findLastIndex(info => info.beat.valueOf() <= targetBeat);
+
+        // 处理负值，以第一个bpm信息计算
+        if (startInfoIndex === -1) return Bpm.countTime(this.bpms[0].bpm, targetBeat);
+
+        const startInfo = this.bpms[startInfoIndex];
+        const startInfoBeat = startInfo.beat.valueOf();
+
+        // 无缓存情况下计算并缓存
+        if (!startInfo.cache && startInfo.cache !== 0) this.getCache(startInfoIndex);
+
+        // 返回转换结果
+        if (startInfoBeat === targetBeat) return startInfo.cache;
+        return startInfo.cache + Bpm.countTime(startInfo.bpm, targetBeat - startInfoBeat);
+    };
+
+    toBeat = (time: number): Fraction => {
+        const startInfoIndex = this.bpms.findLastIndex((info, i) => {
+            if (!info.cache) this.getCache(i);
+            return info.cache <= time;
+        });
+
+        // 处理负值, 以第一bpm信息计算
+        if (startInfoIndex === -1) return Bpm.countBeat(this.bpms[0].bpm, time);
+
+        const startInfo = this.bpms[startInfoIndex];
+
+        // 返回转换结果
+        if (startInfo.cache === time) return startInfo.beat;
+        return startInfo.beat.add(Bpm.countBeat(startInfo.bpm, time - startInfo.cache));
+    };
+
+    clearCache = (from: number = 0, to: number = this.bpms.length) => {
+        for (; from < to; from++) {
+            if (!this.bpms[from] || !this.bpms[from].cache) continue;
+            this.bpms[from].cache = null;
+        }
+    };
+
+    static checkInfo = (info: Partial<IBpm>, unDefault: boolean = false) => {
+        return {
+            beat: info.beat instanceof Fraction ? info.beat : unDefault ? null : new Fraction(info.beat || 0),
+            bpm: unDefault ? info.bpm : (info.bpm ?? 120)
+        };
+    };
+
+    set = (index: number, bpmInfo: Partial<IBpm>) => {
+        const info = Bpm.checkInfo(bpmInfo, true);
+        const oldInfo = this.remove(index);
+        this.add(assign(oldInfo, info));
+    };
+
+    add = (info: IBpm, clearCache: boolean = true): number => {
+        if (!info) return -1;
+        const { beat, bpm } = Bpm.checkInfo(info);
+
+        const startInfoIndex = this.bpms.findLastIndex((info, i) => info.beat.compare(beat) <= 0);
+        const startInfo = this.bpms[startInfoIndex];
+
+        if (startInfoIndex === -1) {
+            this.bpms.unshift({ beat, bpm: bpm });
+            return 0;
+        }
+        if (startInfo.beat.compare(beat) === 0) {
+            startInfo.bpm = bpm ?? startInfo.bpm;
+            if (clearCache) this.clearCache(startInfoIndex);
+            return startInfoIndex;
+        }
+        this.bpms.splice(startInfoIndex + 1, 0, { beat, bpm: bpm });
+        if (clearCache) this.clearCache(startInfoIndex + 1);
+        return startInfoIndex + 1;
+    };
+
+    remove = (indexOrFn: number | ((info: IBpm<Fraction>, index: number, bpm: IBpm<Fraction>[]) => boolean), clearCache: boolean = true): IBpm<Fraction> | null => {
+        if (typeof indexOrFn === 'number') {
+            const res = this.bpms.splice(indexOrFn, 1)[0];
+            if (clearCache) this.clearCache(indexOrFn);
+            return res;
+        }
+        if (indexOrFn instanceof Function) {
+            const index = this.bpms.findIndex(indexOrFn);
+            if (index === -1) return null;
+            return this.remove(index);
+        }
+        return null;
+    };
+
+    reset = (bpm?: IBpm[]) => {
+        if (!bpm) {
+            this.add({ bpm: 120, beat: new Fraction(0) });
+            return this;
+        }
+        for (let i = 0; i < bpm.length; i++) {
+            this.add(bpm[i], false);
+        }
+        this.clearCache();
+        return this;
+    };
 }

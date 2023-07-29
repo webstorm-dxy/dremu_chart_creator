@@ -2,11 +2,11 @@ import FractionInput from "@/components/fraction-input/fraction-input";
 import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
 import { useStateContext } from "@/hooks/use-state-context";
-import { ChartFlickEventDirections, ChartNoteEventType, IChartFlickNoteEvent, IChartHoldNoteEvent, IChartNoteEvents, IChartSustainEvent } from "@/interfaces/chart-data/chart-data.d";
+import { ChartFlickEventDirections, ChartNoteEventType, IChartFlickNoteEvent, IChartHoldNoteEvent, IChartNoteEvents } from "@/interfaces/chart-data/chart-data.d";
 import { noteTypeOptions } from "@/scripts/chart-data/chart-data";
 import { Form, InputNumber, Select, SelectProps, TooltipProps } from "antd";
 import Fraction from "fraction.js";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo } from "react";
 
 export interface INoteTypeSelect extends SelectProps {
     label?: string;
@@ -87,7 +87,7 @@ export default function AttrEditor() {
             if (key === 'id') return <Form.Item required key={id} label={label} tooltip={tooltip}>{value as string}</Form.Item>;
 
             if (value instanceof Fraction) return <Form.Item required key={id} label={label} tooltip={tooltip}>
-                <FractionInput value={value} onChange={onChangeHandler(val => { if (key !== 'endTime' || val.compare(data.time) >= 0) data[key] = val; })} />
+                <FractionInput value={value} onInput={onChangeHandler(val => { if (key !== 'endTime' || val.compare(data.time) >= 0) data[key] = val; })} />
             </Form.Item>;
 
             if (value instanceof Array) return <Form.Item required key={id} label={label} tooltip={tooltip}>{

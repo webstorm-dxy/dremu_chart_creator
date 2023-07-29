@@ -14,12 +14,12 @@ import { MusicContext } from '@/context/editor/music';
 import { HTMLMediaProps } from 'react-use/lib/factory/createHTMLMediaHook';
 import { getAudio } from '@/scripts/utils/fs/audio';
 import { useInterval, useKeyPress, useMount } from 'ahooks';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { UserConfigContext } from '@/context/user-config';
 import { debounce, throttle } from 'lodash';
 import dynamic from 'next/dynamic';
 
-const Header = dynamic(() => import('@components/pages/editor/header/header'), {ssr: false});
+const Header = dynamic(() => import('@components/pages/editor/header/header'), { ssr: false });
 
 export default function Editor() {
     const [userConfigContext,] = useStateContext(UserConfigContext);
@@ -82,24 +82,20 @@ export default function Editor() {
         });
     });
 
-    useEffect(() => {
-        editorContextValue.state.chart?.meta.bpm.setMusicLength(musicState.duration);
-    }, [musicState.duration]);
-
-    const saveChart = throttle(async(targetDir: string) => {
-        await createDir(targetDir, {dir: BaseDirectory.Resource}).catch(() => {});
+    const saveChart = throttle(async (targetDir: string) => {
+        await createDir(targetDir, { dir: BaseDirectory.Resource }).catch(() => { });
         editorContextValue.state.chart.saveAec(targetDir + '/' + editorContextValue.state.chart.getId())
             .then(() => message.success(targetDir === 'backup-copy' ? '备份保存成功' : '保存成功'))
-            .catch((err) => notification.error({message: '保存失败', description: '错误信息:\n' + err, duration: null}));
+            .catch((err) => notification.error({ message: '保存失败', description: '错误信息:\n' + err, duration: null }));
     }, 3000);
 
     useInterval(() => saveChart('backup-copy'), userConfigContext.editor.autoSaveDelay || 60000);
 
     useKeyPress('space', throttle(() => {
         musicState.paused ? musicControls.play() : musicControls.pause();
-    }, 100), {exactMatch: true});
+    }, 100), { exactMatch: true });
 
-    useKeyPress('ctrl.s', debounce(() => saveChart('chart'), 200), {exactMatch: true});
+    useKeyPress('ctrl.s', debounce(() => saveChart('chart'), 200), { exactMatch: true });
 
     return (
         <EditorContext.Provider value={editorContextValue}>
@@ -112,8 +108,8 @@ export default function Editor() {
                     {!editorContextValue.state.chart && <div className={styles["spin-container"]}>
                         <Spin className={styles.spin} size='large' tip="loading..." />
                     </div>}
-                    <Header/>
-                    <Main/>
+                    <Header />
+                    <Main />
                 </div>
                 {music}
             </MusicContext.Provider>

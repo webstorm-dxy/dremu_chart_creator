@@ -117,6 +117,6 @@ export interface Data{
     themes: [IChartThemeEvent, ...IChartThemeEvent[]]; 
 }
 
-export type Beat = Fraction;
+export type Beat<T extends Fraction|number = Fraction|number> = T;
 
 export type ChartTypes = 'aec'|'json';
