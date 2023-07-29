@@ -1,7 +1,5 @@
 import styles from './preview.module.scss';
 
-import PreviewScene from "@/components/pixi/scenes/preview/preview";
-import PixiApp from "@/components/pixi/stage/pixi-app";
 import { Switch } from "antd";
 import ToolBar from "@/components/tool-bar/tool-bar";
 import { EditorContext } from "@/context/editor/editor";
@@ -41,7 +39,7 @@ export default function PreviewView() {
             <Label label='缩放'><PercentInput className="w-16" step={0.1} size='small' value={editorContext.editorConfigs.preview.scale} onChange={v => setScale(Number(v) || 0)} /></Label>
         </ToolBar>
         <div className={useClassName("overflow-auto", styles['preview-container'])} onWheel={onWheelHandler}>
-            <PixiApp
+            {/* <PixiApp
                 className="bg-black max-h-full max-w-full relative top-1/2 left-1/2 object-cover -translate-x-1/2 -translate-y-1/2"
                 style={{ transform: `translate(-50%, -50%) scale(${editorContext.editorConfigs.preview.scale})` }}
                 width={width}
@@ -50,7 +48,7 @@ export default function PreviewView() {
             >
                 {!!editorContext.chart && <PreviewScene chart={editorContext.chart}
                     time={musicRef.current?.currentTime || 0} />}
-            </PixiApp>
+            </PixiApp> */}
         </div>
         {/* <div className="h-16"></div> */}
     </div >;

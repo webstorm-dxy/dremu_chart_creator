@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "reastedit",
-        "version": "0.2.1"
+        "version": "0.2.3"
     },
     "tauri": {
         "allowlist": {
@@ -85,7 +85,7 @@
                 "width": 1280,
                 "height": 720,
                 "resizable": true,
-                "title": "Re: AstEdit - v0.2.1",
+                "title": "Re: AstEdit - v0.2.3",
                 "center": true,
                 "focus": true,
                 "fileDropEnabled": false

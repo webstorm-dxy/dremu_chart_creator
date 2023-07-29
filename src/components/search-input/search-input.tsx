@@ -4,8 +4,8 @@ import Icon from "@components/icon/icon";
 import { SearchInputProps, SearchInputState } from './search-input.d';
 import { FormEvent, useState } from 'react';
 import FCState from '@interfaces/function-component-state';
-import Button from '@components/button/button';
-import Search from '@components/search/search';
+import { Button } from 'antd';
+import Search from '@/components/search-input/search/search';
 import useClassName from '@/hooks/use-class-name';
 
 export default function SearchInput(props: SearchInputProps) {
@@ -35,7 +35,7 @@ export default function SearchInput(props: SearchInputProps) {
             min={min}
             onInput={onInputHandler}
             onKeyDown={(e) => { e.key === 'Enter' && onSearchHandler(e, value); }} />
-        <Button cls={styles.search} onClick={(e) => { onSearchHandler(e, value); }}>
+        <Button className={styles.search} type='ghost' onClick={(e) => { onSearchHandler(e, value); }}>
             <Icon icon='magnifying-glass' type="solid"></Icon>
         </Button>
     </div>;

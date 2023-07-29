@@ -4,7 +4,7 @@ import Head from "next/head";
 import Main from '@components/pages/editor/main/main';
 import { BaseDirectory, createDir, exists, readTextFile } from '@tauri-apps/api/fs';
 import { Modal, Spin, message, notification } from 'antd';
-import { parseAecChart } from '@scripts/chart-data/chart-data';
+import ChartData, { parseAecChart } from '@scripts/chart-data/chart-data';
 import turnTo, { Pages } from '@/scripts/manager/page';
 import { SetStateContextType, useSetStateContextValue, useStateContext } from '@/hooks/use-state-context';
 import { EditorConfigs, defaultEditorContext, EditorContext } from '@/context/editor/editor';
@@ -13,11 +13,12 @@ import { useAudio } from 'react-use';
 import { MusicContext } from '@/context/editor/music';
 import { HTMLMediaProps } from 'react-use/lib/factory/createHTMLMediaHook';
 import { getAudio } from '@/scripts/utils/fs/audio';
-import { useInterval, useKeyPress, useMount } from 'ahooks';
+import { useInterval, useMount } from 'ahooks';
 import { useMemo } from 'react';
 import { UserConfigContext } from '@/context/user-config';
 import { debounce, throttle } from 'lodash';
 import dynamic from 'next/dynamic';
+import useHotkey from '@/hooks/use-hotkey';
 
 const Header = dynamic(() => import('@components/pages/editor/header/header'), { ssr: false });
 
@@ -38,18 +39,17 @@ export default function Editor() {
         const paramArr = window.location.search.slice(1).split(',');
         const params: Partial<EditorConfigs> = {};
 
-        function noChart() {
+        function noChart(msg: string|Error = '未获取到谱面') {
+            msg = msg instanceof Error ? msg.message : typeof msg === 'string' ? msg : `Unknown returned: ${msg}`;
             Modal.error({
                 title: '错误',
                 okText: '返回',
                 onOk() {
                     turnTo(Pages.DASH_BOARD);
                 },
-                content: '未获取到谱面',
+                content: msg,
             });
         }
-
-        // noChart();
 
         paramArr.forEach((v) => {
             const k = v.slice(0, v.indexOf('='));
@@ -71,6 +71,10 @@ export default function Editor() {
 
             const aecChart = await readTextFile(path, { dir: BaseDirectory.Resource }).then(v => JSON.parse(v));
             const chart = await parseAecChart(aecChart);
+            if (!(chart instanceof ChartData)) {
+                noChart(chart);
+                return;
+            }
             setRecordState(editorContextValue.setAction, prev => prev.chart = chart);
 
             const musicContent = await getAudio(chart.getId());
@@ -91,11 +95,11 @@ export default function Editor() {
 
     useInterval(() => saveChart('backup-copy'), userConfigContext.editor.autoSaveDelay || 60000);
 
-    useKeyPress('space', throttle(() => {
+    useHotkey('toggleMusicPlay', throttle(() => {
         musicState.paused ? musicControls.play() : musicControls.pause();
-    }, 100), { exactMatch: true });
+    }, 100));
 
-    useKeyPress('ctrl.s', debounce(() => saveChart('chart'), 200), { exactMatch: true });
+    useHotkey('saveChart', debounce(() => saveChart('chart'), 200));
 
     return (
         <EditorContext.Provider value={editorContextValue}>
@@ -106,7 +110,7 @@ export default function Editor() {
                 </Head>
                 <div className={styles.main}>
                     {!editorContextValue.state.chart && <div className={styles["spin-container"]}>
-                        <Spin className={styles.spin} size='large' tip="loading..." />
+                        <Spin className={styles.spin} size='large' tip="loading..."/>
                     </div>}
                     <Header />
                     <Main />

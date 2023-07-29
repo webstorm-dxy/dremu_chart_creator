@@ -213,7 +213,7 @@ export default function Doc({ className, docList = defaultDocList, sources = def
         [sourcePath, docKey, docList]
     );
 
-    return <div className={useClassName(className.includes('h-') || 'h-screen', "max-h-full w-full overflow-hidden", className)}>
+    return <div className={useClassName(className?.includes('h-') || 'h-screen', "max-h-full w-full overflow-hidden", className)}>
         <div className="flex items-center h-8 w-full bg-white shadow relative z-20">
             <Label label="文档源"><Select size="small" value={sourceKey} options={sources} onChange={val => setSourceKey(val)} /></Label>
             {!disabledOpenInNewWindow && <Button size="small" onClick={() => createWindow('doc', { url: '/doc' })}>在新窗口打开</Button>}

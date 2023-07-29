@@ -11,7 +11,7 @@ import useClassName from "@/hooks/use-class-name";
 import { timelineEffectRenders } from '@/components/timeline-effect/effects';
 import { MusicContext } from '@/context/editor/music';
 import Fraction from 'fraction.js';
-import { useDeepCompareEffect, useKeyPress, useMount, useRafInterval } from 'ahooks';
+import { useDeepCompareEffect, useMount, useRafInterval } from 'ahooks';
 import { ChartNoteEventType, IChartEvent, IChartSustainEvent } from '@/interfaces/chart-data/chart-data.d';
 import Tools from './tools';
 import { createMd5 } from '@/scripts/utils/crypto/md5';
@@ -22,6 +22,7 @@ import { getSelectedData } from '@/scripts/timeline/get-data';
 import range from '@/scripts/utils/range';
 import { glueEvent } from '@/scripts/timeline/edit-data';
 import { NoteTypes } from '@/interfaces/chart-data/event/note/note.d';
+import useHotkey from '@/hooks/use-hotkey';
 
 function actionRender(action: TimelineAction, row: TimelineRow) {
     const effectRender = timelineEffectRenders[action.effectId]?.(action, row);
@@ -112,7 +113,7 @@ export default function TimelineEditor() {
         });
     };
 
-    const onClickActionHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { action }: { action: TimelineAction, row: TimelineRow }) => {
+    const onClickActionHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { action }: { action: TimelineAction, row: TimelineRow; }) => {
         setRecordState(setEditorContext, prev => {
             if (ev.shiftKey) {
                 prev.editing.selected.add(action.id);
@@ -127,7 +128,7 @@ export default function TimelineEditor() {
         });
     };
 
-    const onDoubleClickRowHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { row, time }: { row: TimelineRow, time: number }) => {
+    const onDoubleClickRowHandler = (ev: React.MouseEvent<HTMLElement, MouseEvent>, { row, time }: { row: TimelineRow, time: number; }) => {
         const { id: rowId } = row;
         const barLength = 1 / timeline.beatBar;
         time = editorConfigs.createActionSnip ? Math.round(time / barLength) * barLength : time;
@@ -325,36 +326,35 @@ export default function TimelineEditor() {
         [editorContext.timeline.data.map(row => row.actions.length)]
     );
 
-    useKeyPress('ctrl.g', throttle(ev => {
+    useHotkey('glueEvent', throttle(ev => {
         editorContext.editing.selected.forEach(val => glueEvent(setEditorContext, val));
         ev.preventDefault();
-    }, 500), { exactMatch: true });
+    }, 500));
 
-    useKeyPress('ctrl.x', throttle(() => {
+    useHotkey('cut', throttle(() => {
         const data = getSelectedData(editorContext);
         copy(setEditorContext, data);
         deleteSelected(setEditorContext);
-    }, 1000), { exactMatch: true });
+    }, 1000));
 
-    useKeyPress('delete', throttle(() => {
+    useHotkey('delete', throttle(() => {
         deleteSelected(setEditorContext);
-    }, 500), { exactMatch: true });
+    }, 500));
 
-    useKeyPress('ctrl.c', throttle(() => {
+    useHotkey('copy', throttle(() => {
         copy(setEditorContext, getSelectedData(editorContext));
-    }, 1000), { exactMatch: true });
+    }, 1000));
 
-    useKeyPress('ctrl.v', throttle(() => {
+    useHotkey('paste', throttle(() => {
         paste(
             setEditorContext,
             editorContext.timeline.engine.getTime(),
             editorContext.chart.getLine(editorContext.editing.line)
         );
-    }, 1000), { exactMatch: true });
+    }, 1000));
 
-    useKeyPress('ctrl.d', throttle(ev => { setRecordState(setEditorContext, prev => { prev?.editing.selected.clear(); prev.editing.update = {}; }); ev.preventDefault(); }, 1000), { exactMatch: true });
+    useHotkey('clearSelected', throttle(ev => { setRecordState(setEditorContext, prev => { prev?.editing.selected.clear(); prev.editing.update = {}; }); ev.preventDefault(); }, 1000));
 
-    // // todo h-1/2 border-t-2
     return <div className="w-full h-1/2 relative border-t-2 border-gray-300 overflow-hidden">
         <Tools />
         <div className={useClassName("flex bg-gray-100", styles['timeline-box'])}>

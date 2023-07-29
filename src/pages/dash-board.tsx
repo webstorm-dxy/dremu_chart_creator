@@ -10,7 +10,8 @@ export enum PLATES {
     RECENTLY = 'recently',
     FILE_SYSTEM = 'fileSystem',
     TOOLBOX = 'toolbox',
-    DOC = 'doc'
+    DOC = 'doc',
+    SETTINGS = 'settings'
 }
 
 /** 主页 */
@@ -20,6 +21,6 @@ export default function DashBoard() {
 
     return <div className={styles.main}>
         <LeftBar plate={plate} setPlate={setPlate}></LeftBar>
-        <Manager plate={plate} props={{ disabledOpenInNewWindow: false }} />
+        <Manager plate={plate} />
     </div>;
 }

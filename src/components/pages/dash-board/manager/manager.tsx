@@ -5,6 +5,7 @@ import RecentlyFiles from "./plates/recently/recently";
 import Toolbox from "./plates/toolbox/toolbox";
 import FileSystem from "./plates/file-system/file-system";
 import Doc from "@/pages/doc";
+import Settings from "@/components/settings/settings";
 
 /** 模块对应的组件 */
 const Plates = {
@@ -12,7 +13,8 @@ const Plates = {
     editor: EditorFiles,
     fileSystem: FileSystem,
     toolbox: Toolbox,
-    doc: () => <Doc disabledOpenInNewWindow />
+    doc: () => <Doc disabledOpenInNewWindow />,
+    settings: Settings
 };
 
 /** 加载模块的组件 */

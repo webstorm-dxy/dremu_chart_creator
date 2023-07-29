@@ -1,4 +1,4 @@
-import { SearchProps } from "@components/search/search.d";
+import { SearchProps } from "@/components/search-input/search/search";
 import { FormEventHandler } from "react";
 
 export interface SearchInputProps extends SearchProps {

@@ -13,8 +13,8 @@ import { copy, deleteSelected, paste } from "@/scripts/timeline/clip-board";
 import { getSelectedData } from "@/scripts/timeline/get-data";
 import { glueEvent } from "@/scripts/timeline/edit-data";
 import { noteTypeOptions } from "@/scripts/chart-data/chart-data";
-import { useKeyPress } from "ahooks";
 import { NoteTypes } from "@/interfaces/chart-data/event/note/note.d";
+import useHotkey from "@/hooks/use-hotkey";
 
 export function KeySoundSetting({ data, setAction }: { data: Record<string, ISetKeySoundAttrs | null>, setAction: ISetAction<IUserConfigContext> }) {
 
@@ -51,14 +51,10 @@ export default function Tools() {
         }
     });
 
-    useKeyPress(['q', 'w', 'e', 'r'], ev => {
-        switch (ev.key) {
-            case 'q': return setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Tap);
-            case 'w': return setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Darg);
-            case 'e': return setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Flick);
-            case 'r': return setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Hold);
-        }
-    }, { exactMatch: true });
+    useHotkey('addNoteTypeTap', () => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Tap));
+    useHotkey('addNoteTypeDarg', () => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Darg));
+    useHotkey('addNoteTypeFlick', () => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Flick));
+    useHotkey('addNoteTypeHold', () => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = NoteTypes.Hold));
 
     return <>
         <ToolBar>
@@ -67,7 +63,7 @@ export default function Tools() {
             <Label label="添加时对齐网格"><Switch checked={editorConfigs.createActionSnip} onChange={(c) => setRecordState(setEditorContext, prev => prev.editorConfigs.createActionSnip = c)} /></Label>
             <Label label="添加时粘合"><Switch checked={editorConfigs.createActionGlue} onChange={(c) => setRecordState(setEditorContext, prev => prev.editorConfigs.createActionGlue = c)} /></Label>
             <Label label="小结"><Select className="w-16" size="small" value={timeline.beatBar} options={beatBarOptions} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.beatBar = v)} /></Label>
-            <Label label="添加Note类型"><Select className="w-16" size="small" value={editorConfigs.addNoteType} options={noteTypeOptions} onChange={v => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = v || 0)} /></Label>
+            <Label label="添加Note类型"><Select className="max-w-sm" size="small" value={editorConfigs.addNoteType} options={noteTypeOptions} onChange={v => setRecordState(setEditorContext, prev => prev.editorConfigs.addNoteType = v || 0)} /></Label>
             <Label label="刻度缩放"><Slider className="w-32" value={timeline.scaleWidth} min={40} max={640} step={40} tooltip={{ formatter: (v) => v / 1.6 + '%' }} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.scaleWidth = v)} /></Label>
             <Label label="轨道高度"><Slider className="w-32" value={timeline.rowHeight} min={12} max={68} step={4} tooltip={{ formatter: (v) => v / 0.32 + '%' }} onChange={v => setRecordState(setEditorContext, prev => prev.timeline.rowHeight = v)} /></Label>
             <Label label="延迟"><InputNumber className='w-16' size='small' value={editorContext.chart?.meta.offset || 0} onChange={val => setRecordState(setEditorContext, prev => prev.chart?.setMeta('offset', val))} /></Label>

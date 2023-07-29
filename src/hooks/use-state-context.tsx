@@ -1,5 +1,5 @@
 import { readTextFile } from '@/scripts/utils/fs/readFile';
-import { BaseDirectory, createDir, writeTextFile } from '@tauri-apps/api/fs';
+import { BaseDirectory, createDir, exists, writeTextFile } from '@tauri-apps/api/fs';
 import { useMount, useReactive, useSetState } from 'ahooks';
 import { debounce, defaultsDeep } from 'lodash';
 import {
@@ -88,7 +88,7 @@ export function useSetStateContextValue<T extends Record<string | number | symbo
 
     if (type === SetStateContextType.LocalSet && filePath) {
       const setStateAction = setState;
-      setState = (set: T|((prevState: T) => T)) => {
+      setState = (set: T | ((prevState: T) => T)) => {
         const value = set instanceof Function ? set(state) : set;
         setStateAction(value);
         saveLocalState(filePath, value);
@@ -100,7 +100,9 @@ export function useSetStateContextValue<T extends Record<string | number | symbo
             setState(defaultsDeep(data, initValue));
           })
           .catch(async () => {
-            await createDir(filePath.slice(0, filePath.lastIndexOf('/')), { dir: BaseDirectory.Resource });
+            const dirPath = filePath.slice(0, filePath.lastIndexOf('/'));
+            if (!await exists(dirPath, { dir: BaseDirectory.Resource }))
+              await createDir(dirPath, { dir: BaseDirectory.Resource });
             setState(initValue);
           });
       });

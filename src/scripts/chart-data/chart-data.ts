@@ -9,6 +9,7 @@ import { BaseDirectory, FsOptions, writeFile } from "@tauri-apps/api/fs";
 import downloadFileFromData from "../utils/fs/download-text-file-from-data";
 import { notification } from "antd";
 import { IEvents } from "@/interfaces/chart-data/event-manager";
+import upgrade from "./chart-upgrade/upgrader";
 
 
 export default class ChartData {
@@ -67,7 +68,7 @@ export default class ChartData {
         });
     };
 
-    getEventById(id: string): { event: IEvents | null, line: IChartLine|null, type: keyof Pick<IChartLine, 'notes' | 'alphas' | 'dots' | 'moves' | 'rotates' | 'timings'> | null } {
+    getEventById(id: string): { event: IEvents | null, line: IChartLine | null, type: keyof Pick<IChartLine, 'notes' | 'alphas' | 'dots' | 'moves' | 'rotates' | 'timings'> | null; } {
         let res = { event: null, type: null, line: null };
         if (!id) return res;
         this.getLine((line) => {
@@ -91,7 +92,7 @@ export default class ChartData {
 
     // version
     static getVersion(): number {
-        return 2.0;
+        return 2.1;
     }
 
     // id
@@ -146,8 +147,8 @@ export default class ChartData {
                         ev.to[0] += (parent as any)?.startX || 0;
                         ev.to[1] += (parent as any)?.startY || 0;
                     }
-                    (ev as any).from = {x: ev.from?.[0] || 0, y: ev.from?.[1] || 0};
-                    (ev as any).to = {x: ev.to?.[0] || 0, y: ev.to?.[1] || 0};
+                    (ev as any).from = { x: ev.from?.[0] || 0, y: ev.from?.[1] || 0 };
+                    (ev as any).to = { x: ev.to?.[0] || 0, y: ev.to?.[1] || 0 };
                     return ev;
                 });
                 line.moves = undefined;
@@ -339,10 +340,10 @@ export namespace EventCreator {
         return assign(createNoteEvent({ type: ChartNoteEventType.Flick }), { direction: ChartFlickEventDirections.Up }, attrs);
     }
 
-    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Tap | ChartNoteEventType } & Partial<IChartNoteEvents>): IChartTapNoteEvent
-    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Darg } & Partial<IChartNoteEvents>): IChartDargNoteEvent
-    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Hold } & Partial<IChartNoteEvents>): IChartHoldNoteEvent
-    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Flick } & Partial<IChartNoteEvents>): IChartFlickNoteEvent
+    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Tap | ChartNoteEventType; } & Partial<IChartNoteEvents>): IChartTapNoteEvent;
+    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Darg; } & Partial<IChartNoteEvents>): IChartDargNoteEvent;
+    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Hold; } & Partial<IChartNoteEvents>): IChartHoldNoteEvent;
+    export function createUnknownNoteEvent(attrs: { type: ChartNoteEventType.Flick; } & Partial<IChartNoteEvents>): IChartFlickNoteEvent;
     export function createUnknownNoteEvent(attrs: Partial<IChartNoteEvents> = {}): IChartNoteEvents {
         switch (attrs.type) {
             case ChartNoteEventType.Tap: return createTapNoteEvent(attrs);
@@ -384,53 +385,68 @@ export async function createAecFile(chart: ChartData, music: ArrayBuffer | Blob 
     return chart;
 }
 
-export function parseAecChart(aecChart: ChartAecFile) {
-    const { meta, data } = aecChart;
-    let { lines, themes } = data;
+export async function parseAecChart(aecChart: ChartAecFile): Promise<ChartData | Error> {
+    let chartData = aecChart;
 
-    meta.bpm = new Bpm(meta.bpm.map(bpm => { bpm.beat = new Fraction(bpm.beat); return bpm; }));
+    if (aecChart.meta.version > ChartData.getVersion()) return new Error('The chart version is higher than editor supported chart version. Upgrade editor to higher version to edit the chart, please.');
 
-    if (lines.length === 0) {
-        lines.push(createLine(0));
-    }
-    if (themes.length === 0) {
-        themes.push(EventCreator.createThemeEvent());
-    }
+    // 格式升级
+    if (aecChart.meta.version === ChartData.getVersion()) return parse();
 
-    function eventTimeToFraction<T extends IChartEvent | IChartSustainEvent>(event: T) {
-        event.id ||= createMd5();
-        event.time = new Fraction(event.time);
-        if ((event as IChartSustainEvent).endTime)
-            (event as IChartSustainEvent).endTime = new Fraction((event as IChartSustainEvent).endTime);
-        return event;
-    }
+    let returnContent = null;
+    await upgrade(aecChart)
+        .then(upgradedChart => { chartData = upgradedChart; returnContent = parse(); })
+        .catch(err => returnContent = err);
+    return returnContent;    
 
-    function timeToFraction(lines: IChartLine[]) {
-        if (!lines) return [];
-        return lines.map(line => {
-            line.notes = line.notes.map(ev => eventTimeToFraction(ev));
-            line.dots = line.dots.map(ev => eventTimeToFraction(ev));
-            line.moves = line.moves.map(ev => eventTimeToFraction(ev));
-            line.alphas = line.alphas.map(ev => eventTimeToFraction(ev));
-            line.rotates = line.rotates.map(ev => eventTimeToFraction(ev));
-            line.timings = line.timings.map(ev => eventTimeToFraction(ev));
-            line.children = timeToFraction(line.children);
-            return line;
-        });
-    }
+    function parse() {
+        const { meta, data } = chartData;
+        let { lines, themes } = data;
 
-    lines = timeToFraction(lines) as [IChartLine, ...IChartLine[]];
-    themes = themes.map(ev => eventTimeToFraction(ev)) as [IChartThemeEvent, ...IChartThemeEvent[]];
+        meta.bpm = new Bpm(meta.bpm.bpms.map(bpm => { bpm.beat = new Fraction(bpm.beat); return bpm; }));
 
-    const chart = new ChartData({
-        meta: meta,
-        data: {
-            lines,
-            themes
+        if (lines.length === 0) {
+            lines.push(createLine(0));
         }
-    });
+        if (themes.length === 0) {
+            themes.push(EventCreator.createThemeEvent());
+        }
 
-    return chart;
+        function eventTimeToFraction<T extends IChartEvent | IChartSustainEvent>(event: T) {
+            event.id ||= createMd5();
+            event.time = new Fraction(event.time);
+            if ((event as IChartSustainEvent).endTime)
+                (event as IChartSustainEvent).endTime = new Fraction((event as IChartSustainEvent).endTime);
+            return event;
+        }
+
+        function timeToFraction(lines: IChartLine[]) {
+            if (!lines) return [];
+            return lines.map(line => {
+                line.notes = line.notes.map(ev => eventTimeToFraction(ev));
+                line.dots = line.dots.map(ev => eventTimeToFraction(ev));
+                line.moves = line.moves.map(ev => eventTimeToFraction(ev));
+                line.alphas = line.alphas.map(ev => eventTimeToFraction(ev));
+                line.rotates = line.rotates.map(ev => eventTimeToFraction(ev));
+                line.timings = line.timings.map(ev => eventTimeToFraction(ev));
+                line.children = timeToFraction(line.children);
+                return line;
+            });
+        }
+
+        lines = timeToFraction(lines) as [IChartLine, ...IChartLine[]];
+        themes = themes.map(ev => eventTimeToFraction(ev)) as [IChartThemeEvent, ...IChartThemeEvent[]];
+
+        const chart = new ChartData({
+            meta: meta,
+            data: {
+                lines,
+                themes
+            }
+        });
+
+        return chart;
+    }
 }
 
 export const noteTypeOptions = (() => {

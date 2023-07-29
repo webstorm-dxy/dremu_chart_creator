@@ -1,4 +1,4 @@
-import { SearchProps } from "@components/search/search";
+import { SearchProps } from "@/components/search-input/search/search";
 
 export type FilterProps<T extends unknown[] = unknown[]> = {
     set: Function;

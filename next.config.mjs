@@ -17,10 +17,11 @@ const nextConfig = {
     webpack: (config) => {
         config.experiments.topLevelAwait = true;
         return config;
-    },
-    compiler: process.env.NODE_ENV === 'production' ? {removeConsole: {exclude: ['error', 'warn']}} : void 0,
-    eslint: {ignoreDuringBuilds: true,},
-    typescript: {ignoreBuildErrors: true,},
+    }, 
+    transpilePackages: ['ahooks'],
+    compiler: process.env.NODE_ENV === 'production' ? { removeConsole: { exclude: ['error', 'warn'] } } : void 0,
+    eslint: { ignoreDuringBuilds: true, },
+    typescript: { ignoreBuildErrors: true, },
     reactStrictMode: true,
     images: { unoptimized: true, },
     pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']

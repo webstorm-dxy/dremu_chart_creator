@@ -18,7 +18,7 @@ export default function ToolBar(props: IToolBarProps) {
 
     const containerWidth = containerRef.current?.clientWidth || 0;
     const contentWidth = contentRef.current?.clientWidth || 0;
-    const max = useMemo(() => Math.max(0, contentWidth - containerWidth + 18), [containerWidth, contentWidth]);
+    const max = useMemo(() => Math.max(0, contentWidth - containerWidth + 4), [containerWidth, contentWidth]);
 
     const setOffset = useCallback((newOffset: number|((prevOffset: number) => number)) => {
         setOffsetAction(prev => range(newOffset instanceof Function ? newOffset(prev) : newOffset, 0, max));

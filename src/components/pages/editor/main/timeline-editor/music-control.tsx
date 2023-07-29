@@ -3,9 +3,9 @@ import Label from "@/components/label/label";
 import { EditorContext } from "@/context/editor/editor";
 import { MusicContext } from "@/context/editor/music";
 import { setRecordState } from "@/hooks/set-record-state";
+import useHotkey from "@/hooks/use-hotkey";
 import { useStateContext } from "@/hooks/use-state-context";
 import range from "@/scripts/utils/range";
-import { useKeyPress } from "ahooks";
 import { Space, Button, Slider, Popover } from "antd";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
@@ -27,9 +27,9 @@ export default function MusicControl() {
             setRecordState(setEditorContext, prev => prev.timeline.playRate = musicContext.ref.current.playbackRate);
     }, [timeline.playRate]);
 
-    useKeyPress('1', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(1, 0.25, 4)); }, { exactMatch: true });
-    useKeyPress('openbracket', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate - 0.25, 0.25, 4)); }, { exactMatch: true });
-    useKeyPress('closebracket', ev => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate + 0.25, 0.25, 4)); }, { exactMatch: true });
+    useHotkey('resetPlayRate', () => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(1, 0.25, 4)); });
+    useHotkey('addPlayRate', () => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate - 0.25, 0.25, 4)); });
+    useHotkey('subPlayRate', () => { setRecordState(setEditorContext, prev => prev.timeline.playRate = range(prev.timeline.playRate + 0.25, 0.25, 4)); });
 
     return <Space>
         <Button type="text" onKeyDown={ev => ev.preventDefault()} shape='circle' onClick={() => musicContext.state.paused ? musicContext.controls.play() : musicContext.controls.pause()}><Icon icon={musicContext.state.paused ? 'play' : 'pause'} /></Button>

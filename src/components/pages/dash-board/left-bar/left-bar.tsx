@@ -6,6 +6,7 @@ import { LeftBarProps } from './left-bar.d';
 import { createWindow } from '@scripts/manager/window-manager';
 import { PLATES } from '@/pages/dash-board';
 import useClassName from '@/hooks/use-class-name';
+import { Space } from 'antd';
 
 
 
@@ -26,12 +27,13 @@ export default function LeftBar({ plate, setPlate }: LeftBarProps) {
             <h5 className={styles.title}> Re: AstEdit </h5>
         </div>
 
-        <div className={styles['plate-list']}>
+        <Space direction='vertical' size={4} className={styles['plate-list']}>
             <Plate name={PLATES.RECENTLY} icon={<Icon icon='clock-rotate-left'></Icon>} activePlate={plate} setPlate={setPlate}>最近</Plate>
             <Plate name={PLATES.EDITOR} icon={<Icon icon='folder'></Icon>} activePlate={plate} setPlate={setPlate}>制谱器</Plate>
             <Plate name={PLATES.FILE_SYSTEM} icon={<Icon icon='cloud'></Icon>} activePlate={plate} setPlate={setPlate}>文件系统</Plate>
             <Plate name={PLATES.TOOLBOX} icon={<Icon icon='toolbox'></Icon>} activePlate={plate} setPlate={setPlate}>工具</Plate>
             <Plate name={PLATES.DOC} icon={<Icon icon='book'></Icon>} activePlate={plate} setPlate={setPlate}>文档</Plate>
-        </div>
+            <Plate name={PLATES.SETTINGS} icon={<Icon icon='gear'></Icon>} activePlate={plate} setPlate={setPlate}>设置</Plate>
+        </Space>
     </div>;
 }

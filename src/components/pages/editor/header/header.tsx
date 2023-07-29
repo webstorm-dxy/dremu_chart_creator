@@ -11,13 +11,13 @@ import { connectPreview, disconnectPreview, fetchToPreview } from '@/scripts/man
 import { BaseDirectory, createDir } from '@tauri-apps/api/fs';
 import { resolve as resolvePath, resourceDir } from '@tauri-apps/api/path';
 import { MusicContext } from '@/context/editor/music';
-import { useKeyPress } from 'ahooks';
 import { throttle } from 'lodash';
 import { copy, deleteSelected, paste } from '@/scripts/timeline/clip-board';
 import { getSelectedData } from '@/scripts/timeline/get-data';
 import { setRecordState } from '@/hooks/set-record-state';
 import { glueEvent } from '@/scripts/timeline/edit-data';
 import { createWindow } from '@/scripts/manager/window-manager';
+import useHotkey from '@/hooks/use-hotkey';
 
 export default function Header() {
     const [editorContext, setEditorContext] = useStateContext(EditorContext);
@@ -170,8 +170,8 @@ export default function Header() {
         }
     ], [path, chart, editorContext?.clipBoard, editorContext?.editing?.selected.values()]);
 
-    useKeyPress('ctrl.shift.p', ev => { preview(0); ev.preventDefault(); }, { exactMatch: true });
-    useKeyPress('ctrl.p', ev => { preview(); ev.preventDefault(); }, { exactMatch: true });
+    useHotkey('previewFromStart', ev => { preview(0); ev.preventDefault(); });
+    useHotkey('previewFromNow', ev => { preview(); ev.preventDefault(); });
 
     return <Menu className={useClassName(styles.header, 'shadow', 'z-20')} mode='horizontal' items={items} selectable={false}></Menu>;
 }

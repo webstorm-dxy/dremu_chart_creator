@@ -8,7 +8,7 @@ import { AppContext, defaultAppContext } from '@/context/app';
 import { SetStateContextType, useSetStateContextValue } from '@/hooks/use-state-context';
 import { UserConfigContext, defaultUserConfigContext } from '@/context/user-config';
 import NoSsr from '@/components/no-ssr/no-ssr';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMount } from 'ahooks';
 import dayjs from 'dayjs';
 

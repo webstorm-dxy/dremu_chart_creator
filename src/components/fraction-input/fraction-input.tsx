@@ -9,6 +9,21 @@ export interface FractionInputProps {
     onInput?: (value: Fraction) => void;
 }
 
+export function getFraction(argNum: number, argDen: number, argInt: number = 0): Fraction {
+    function toInt(num: number, times: number = 0): [number, number] {
+        if (!(num % 1)) return [num, times];
+        return toInt(num * 10, times + 1);
+    }
+
+    const num = toInt(argInt * argDen + argNum);
+    const den = toInt(argDen);
+
+    if (num[1] > den[1]) den[0] *= 10 ** num[1] - den[1];
+    if (num[0] < den[1]) num[0] *= 10 ** den[1] - num[0];
+
+    return new Fraction(num[0], den[0]);
+}
+
 export default function FractionInput(props: FractionInputProps) {
     const { onChange, onInput } = props;
 
@@ -28,17 +43,17 @@ export default function FractionInput(props: FractionInputProps) {
     }, [props.value.valueOf()]);
 
     useUpdateEffect(() => {
-        if (!focuses.int && !focuses.num && !focuses.den) return;
+        if (!value.den || (!focuses.int && !focuses.num && !focuses.den)) return;
 
         const { int = 0, num = 0, den = 1 } = value;
-        onInput?.(new Fraction(int * den + num, den || 1));
+        onInput?.(getFraction(num, den || 1, int));
     }, [value.int, value.num, value.den]);
 
     useUpdateEffect(() => {
         if (focuses.int || focuses.num || focuses.den) return;
 
         const { int = 0, num = 0, den = 1 } = value;
-        onChange?.(new Fraction(int * den + num, den || 1));
+        onChange?.(getFraction(num, den || 1, int));
     }, [focuses.int, focuses.num, focuses.den]);
 
     return <Space>
@@ -56,10 +71,13 @@ export default function FractionInput(props: FractionInputProps) {
         <label>/</label>
         <InputNumber className="w-14" value={value.den}
             onFocus={() => setFocuses({ den: true })}
-            onBlur={() => setFocuses({ den: false })}
-            onChange={val => setValue(prev => {
-                return { den: val || (prev.den > val ? -1 : 1) };
-            })}
+            onBlur={() => {
+                setFocuses({ den: false }); 
+                setValue(prev => {
+                    return { den: prev.den || 1 };
+                });
+            }}
+            onChange={val => setValue({ den: val })}
         />
     </Space>;
 }

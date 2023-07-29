@@ -1,6 +1,7 @@
 import Icon from "@/components/icon/icon";
 import { EditorContext } from "@/context/editor/editor";
 import { setRecordState } from "@/hooks/set-record-state";
+import useHotkey from "@/hooks/use-hotkey";
 import { useStateContext } from "@/hooks/use-state-context";
 import { IChartLine } from "@/interfaces/chart-data/chart-data";
 import { Button, Form, Input, InputNumber, Popconfirm, Popover, Tree, TreeProps, Typography, message } from "antd";
@@ -29,8 +30,10 @@ export default function LineManager() {
 
     const lineTreeData = toTreeData(chart?.data.lines, editorContext.editing.line);
 
-    function setEditingLine(id: Int) {
+    function setEditingLine(idOrFn: Int | ((id: Int | null) => Int)) {
+        const id = idOrFn instanceof Function ? idOrFn(editorContext.editing.line) : idOrFn;
         if (typeof id !== 'number') return message.warning('错误的line id. id: ' + id);
+        if(!editorContext.chart.getLine(id)) return;
         setRecordState(setEditorContext, prev => prev.editing.line = id);
     }
 
@@ -41,7 +44,6 @@ export default function LineManager() {
         const dragId = dragNode.key as number;
         const id = node.key as number;
         if (dragId === id) return;
-        console.log(info);
         setRecordState(setEditorContext, prev => {
             const chart = prev.chart;
             const moveLine = chart.getLine(dragId);
@@ -72,8 +74,8 @@ export default function LineManager() {
     }, 500);
 
     const removeLineHandler = throttle(() => {
-        if(!selectedLine) return;
-        if(editorContext.editing.line === selectedLine.id) {
+        if (!selectedLine) return;
+        if (editorContext.editing.line === selectedLine.id) {
             message.warning('编辑状态的线不可删除');
             return;
         }
@@ -85,7 +87,7 @@ export default function LineManager() {
         setSelectedLine(null);
     }, 500);
 
-    function EditLineForm({ line }: { line: IChartLine }) {
+    function EditLineForm({ line }: { line: IChartLine; }) {
         const set = (setAction: (prev: IChartLine) => void) => setRecordState(setEditorContext, prevState => setAction(prevState.chart.getLine(line.id)));
 
         return line && <Form size="small">
@@ -107,6 +109,10 @@ export default function LineManager() {
         </Form>;
     }
 
+    useHotkey('nextLine', () => setEditingLine(id => id || id == 0 ? id + 1 : id));
+
+    useHotkey('lastLine', () => setEditingLine(id => id || id == 0 ? id - 1 : id));
+
     return <div>
         <Button.Group className="mb-4">
             <Popconfirm title="添加" destroyTooltipOnHide onConfirm={addLineHandler}>
@@ -119,7 +125,7 @@ export default function LineManager() {
                 <Button disabled={!selectedLine}>删除</Button>
             </Popconfirm>
         </Button.Group>
-        
+
         <Tree treeData={lineTreeData}
             showLine
             showIcon
