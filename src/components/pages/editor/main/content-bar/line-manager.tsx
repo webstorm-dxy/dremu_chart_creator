@@ -21,8 +21,6 @@ function toTreeData(lines: IChartLine[], editing: Int | null): TreeProps['treeDa
     });
 }
 
-
-
 export default function LineManager() {
     const [editorContext, setEditorContext] = useStateContext(EditorContext);
     const { chart } = editorContext;
